@@ -83,7 +83,7 @@ export default function EnrollmentStatisticsPage() {
       <div className="page-header">
         <div className="container">
           <h1>Enrollment Statistics</h1>
-          <p>Historical enrollment data for Tropical Village Elementary School</p>
+          <p>Historical enrollment data for Bacao Elementary School</p>
         </div>
       </div>
 

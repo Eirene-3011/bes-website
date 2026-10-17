@@ -47,13 +47,13 @@ function FooterHeading({ children }) {
 export default function Footer() {
   const { info } = useSchoolInfo();
   const year = new Date().getFullYear();
-  const schoolName = info?.school_name || 'Tropical Village Elementary School';
-  const motto = info?.motto || 'Teach with heart, Value each child, Excel together, Serve with pride';
+  const schoolName = info?.school_name || 'Bacao Elementary School';
+  const motto = info?.motto || 'Be Your Best at BES';
 
   const contactDetails = [
-    { Icon: LocationIcon, label: 'Visit us', value: info?.address || 'Brgy. Bagumbayan, General Trias City, Cavite' },
-    { Icon: PhoneIcon, label: 'Call us', value: info?.mobile || '0998-510-7967' },
-    { Icon: EmailIcon, label: 'Email us', value: info?.email || '107967@deped.gov.ph' },
+    { Icon: LocationIcon, label: 'Visit us', value: info?.address || 'Purok 7, Bacao 2, General Trias City, Cavite' },
+    { Icon: PhoneIcon, label: 'Call us', value: info?.mobile || '(046) 230 3506 / 0966-486-1467' },
+    { Icon: EmailIcon, label: 'Email us', value: info?.email || '107957@deped.gov.ph' },
     { Icon: ClockIcon, label: 'Office hours', value: info?.office_hours || 'Mon–Fri, 8:00 AM–5:00 PM' },
   ];
 
@@ -68,13 +68,13 @@ export default function Footer() {
             <div className="footer-brand-mark">
               <img
                 src={getImageUrl(info?.logo_url) || 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Department_of_Education_%28DepEd%29_of_the_Philippines.svg/200px-Department_of_Education_%28DepEd%29_of_the_Philippines.svg.png'}
-                alt="TVES logo"
+                alt="BES logo"
                 className="footer-logo"
                 onError={e => { e.currentTarget.style.display = 'none'; }}
               />
               <span className="footer-brand-rule" aria-hidden="true" />
             </div>
-            <p id="footer-brand-title" className="footer-kicker">Tropical Village Elementary School</p>
+            <p id="footer-brand-title" className="footer-kicker">Bacao Elementary School</p>
             <p className="footer-school-name">{schoolName}</p>
             <p className="footer-motto">“{motto}”</p>
             <div className="social-links" aria-label="Social media links">

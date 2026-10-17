@@ -62,7 +62,7 @@ export default function NewsPage() {
         <div className="page-header">
           <div className="container">
             <h1>News & Updates</h1>
-            <p>Latest news, announcements, and events from TVES</p>
+            <p>Latest news, announcements, and events from BES</p>
           </div>
         </div>
         <section className="section">
@@ -148,7 +148,7 @@ export default function NewsPage() {
       <div className="page-header">
         <div className="container">
           <h1>News & Updates</h1>
-          <p>Latest news, announcements, and events from TVES</p>
+          <p>Latest news, announcements, and events from BES</p>
         </div>
       </div>
 

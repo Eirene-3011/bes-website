@@ -101,7 +101,7 @@ export default function AdminDashboard() {
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title">Dashboard</h1>
-          <p className="admin-page-sub">Welcome to the TVES Admin Panel. Manage all website content from here.</p>
+          <p className="admin-page-sub">Welcome to the BES Admin Panel. Manage all website content from here.</p>
         </div>
         <a href="/" target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-sm">🌐 View Public Site</a>
       </div>
@@ -123,7 +123,7 @@ export default function AdminDashboard() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(160px,1fr))', gap: 12, marginBottom: 14 }}>
           {[
             { label: 'Total Enrollment', val: Number(s.enrollment_count) || 0, color: '#1565C0', icon: '👥' },
-            { label: 'Teaching Personnel', val: Number(s.teaching_personnel) || 0, color: '#2E7D32', icon: '👨‍🏫' },
+            { label: 'Teaching Personnel', val: Number(s.teaching_personnel) || 0, color: '#2B63BF', icon: '👨‍🏫' },
             { label: 'Non-Teaching Staff', val: Number(s.non_teaching_personnel) || 0, color: '#7C3AED', icon: '🏢' },
             { label: 'Admin Staff', val: Number(s.administrative_staff) || 0, color: '#0891B2', icon: '📋' },
             { label: 'Total Sections', val: totalSections, color: '#D97706', icon: '📚' },
@@ -149,7 +149,7 @@ export default function AdminDashboard() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(210px,1fr))', gap: 12, marginBottom: 14 }}>
           {[
             { label: 'Overall Proficiency', val: Number(s.overall_proficiency) > 0 ? `${Number(s.overall_proficiency).toFixed(1)}%` : '—', color: '#1565C0', icon: '📈' },
-            { label: 'Retention Rate', val: Number(s.retention_rate) > 0 ? `${Number(s.retention_rate).toFixed(1)}%` : '—', color: '#2E7D32', icon: '✅' },
+            { label: 'Retention Rate', val: Number(s.retention_rate) > 0 ? `${Number(s.retention_rate).toFixed(1)}%` : '—', color: '#2B63BF', icon: '✅' },
             { label: 'Dropout Rate', val: Number(s.dropout_rate) > 0 ? `${Number(s.dropout_rate).toFixed(1)}%` : '—', color: Number(s.dropout_rate) > 0 ? '#DC2626' : '#6B7280', icon: '⚠️' },
             { label: 'Completion Rate', val: Number(s.transition_completion_rate) > 0 ? `${Number(s.transition_completion_rate).toFixed(1)}%` : '—', color: '#7C3AED', icon: '🎓' },
             { label: 'Learners w/ Disabilities', val: Number(s.learners_with_disabilities) || 0, color: '#0891B2', icon: '♿' },

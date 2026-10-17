@@ -14,13 +14,14 @@ import {
 } from '../../components/Icons';
 
 const CHARTER_INFO = {
-  office: 'Tropical Village Elementary School',
+  office: 'Bacao Elementary School',
   classification: 'Simple',
   transactionType: 'G2C (Government to Citizen)',
   whoMayAvail: 'Learners / Parents / Guardians',
 };
 
-const DEFAULT_ONLINE_ENROLLMENT_LINK = 'https://forms.gle/UQkCZ2HXPTedFmxY7';
+// No BES online enrollment form supplied yet: falls back to the Contact page. Set via school info when available.
+const DEFAULT_ONLINE_ENROLLMENT_LINK = '/contact';
 
 // Standard enrollment requirements per DepEd policy
 const STANDARD_REQUIREMENTS = [
@@ -208,7 +209,7 @@ export default function AdmissionsPage() {
       <div className="page-header">
         <div className="container">
           <h1>Admissions &amp; Enrollment</h1>
-          <p>Everything you need to know about enrolling at Tropical Village Elementary School</p>
+          <p>Everything you need to know about enrolling at Bacao Elementary School</p>
         </div>
       </div>
 

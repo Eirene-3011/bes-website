@@ -12,7 +12,7 @@ export default function AdminLogin() {
     if (!code) { setStatus('error'); setError('Invalid access link.'); return; }
     api.post('/auth/login', { code })
       .then(res => {
-        localStorage.setItem('tves_admin_token', res.data.token);
+        localStorage.setItem('bes_admin_token', res.data.token);
         setStatus('success');
         setTimeout(() => navigate('/admin'), 800);
       })
@@ -25,9 +25,9 @@ export default function AdminLogin() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, var(--red-dark) 0%, var(--red-primary) 100%)', padding: 20 }}>
       <div style={{ background: 'white', borderRadius: 'var(--radius-xl)', padding: '48px 40px', maxWidth: 420, width: '100%', textAlign: 'center', boxShadow: 'var(--shadow-xl)' }}>
-         <img src="/uploads/logo.png" alt="TVES Logo placeholder" style={{ width: 80, height: 80, objectFit: 'contain', margin: '0 auto 20px' }} onError={e => e.target.style.display='none'} />
-         <h1 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--gray-900)', marginBottom: 8 }}>TVES Admin Panel</h1>
-         <p style={{ fontSize: '0.85rem', color: 'var(--gray-500)', marginBottom: 32 }}>Tropical Village Elementary School</p>
+         <img src="/uploads/logo.png" alt="BES Logo placeholder" style={{ width: 80, height: 80, objectFit: 'contain', margin: '0 auto 20px' }} onError={e => e.target.style.display='none'} />
+         <h1 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--gray-900)', marginBottom: 8 }}>BES Admin Panel</h1>
+         <p style={{ fontSize: '0.85rem', color: 'var(--gray-500)', marginBottom: 32 }}>Bacao Elementary School</p>
 
         {status === 'logging-in' && (
           <div>

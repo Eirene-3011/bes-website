@@ -1,14 +1,14 @@
-# Tropical Village Elementary School Website
+# Bacao Elementary School Website
 
-Official website and admin content system for **Tropical Village Elementary School (TVES)**.
+Official website and admin content system for **Bacao Elementary School (BES)**.
 
-- **School ID:** 107967
-- **Location:** Pabahay 2000, Tropical Village, Brgy. San Francisco, General Trias City, Cavite
-- **Division:** General Trias City
+- **School ID:** 107957
+- **Location:** Purok 7, Bacao 2, General Trias City, Cavite
+- **Division:** Schools Division Office of General Trias City
 - **Region:** IV-A CALABARZON
 - **School type:** Public elementary school
 
-The site keeps the supplied school-website structure and routes while replacing unavailable TVES information with editable placeholders or “Coming soon” notices. Seeded facts come from the supplied school profile: established in 1995, Principal II Imelda S. Arevalo, 2,496 pupils, 71 teachers, 12 buildings, 55 classrooms, Madrasah support, and face-to-face learning.
+The site keeps the supplied school-website structure and routes while replacing unavailable BES information with editable placeholders or “Coming soon” notices. Seeded facts come from the BES Website Content & Information Form: founded 1915 (Gabaldon Building), Principal I Myra P. Aro, 1,155 pupils for SY 2026–2027 (Kinder–Grade 6, ALS, and SPED), 33 teachers, 17 classrooms, and the school’s Projects, Programs & Activities.
 
 ## Stack
 
@@ -24,21 +24,21 @@ The site keeps the supplied school-website structure and routes while replacing 
 ```text
 frontend/       React public site and admin panel
 backend/        Express API
-database/       schema.sql and TVES seed.sql
+database/       schema.sql and BES seed.sql
 ```
 
 ## Local development
 
 ### 1. Create and seed the database
 
-The scripts create/use `tves_db`. Run them from the project root with a local MySQL-compatible server:
+The scripts create/use `bes_db`. Run them from the project root with a local MySQL-compatible server:
 
 ```bash
 mysql -u root -p < database/schema.sql
 mysql -u root -p < database/seed.sql
 ```
 
-`seed.sql` resets the application tables before inserting the TVES starter content. Do not run it against a database containing data you need to keep.
+`seed.sql` resets the application tables before inserting the BES starter content. Do not run it against a database containing data you need to keep.
 
 ### 2. Configure and start the API
 
@@ -70,7 +70,7 @@ Open <http://localhost:5173>. The Vite proxy sends `/api` requests to the local 
 
 1. Create a TiDB Cloud Serverless cluster.
 2. In **Connect**, choose the Node.js/MySQL connection details.
-3. Create a database named `tves_db` if it is not already present.
+3. Create a database named `bes_db` if it is not already present.
 4. Run `database/schema.sql`, then `database/seed.sql` against the cluster.
 5. In Render, set:
 
@@ -79,7 +79,7 @@ DB_HOST=<TiDB gateway host>
 DB_PORT=4000
 DB_USER=<TiDB user>
 DB_PASSWORD=<TiDB password>
-DB_NAME=tves_db
+DB_NAME=bes_db
 DB_SSL=true
 ```
 
@@ -95,7 +95,7 @@ CLOUDINARY_API_KEY=<API key>
 CLOUDINARY_API_SECRET=<API secret>
 ```
 
-Uploads are stored under the `tves-uploads` folder. The admin panel can manage the school logo, banners, news images, staff photos, and other supported content.
+Uploads are stored under the `tves-uploads` (folder name is set in the backend code; rename it there to `bes-uploads` if you want a BES folder) folder. The admin panel can manage the school logo, banners, news images, staff photos, and other supported content.
 
 ## Render backend deployment
 
@@ -104,7 +104,7 @@ Uploads are stored under the `tves-uploads` folder. The admin panel can manage t
 3. Use:
    - Build command: `npm install`
    - Start command: `npm start`
-4. Add all variables from `backend/.env.example`.
+4. Add the backend environment variables as described below.
 5. Set `FRONTEND_URL` to the final Netlify URL. Multiple origins may be comma-separated.
 6. Deploy and verify:
 
@@ -112,7 +112,60 @@ Uploads are stored under the `tves-uploads` folder. The admin panel can manage t
 https://<your-render-service>.onrender.com/api/health
 ```
 
-The response should report an `ok` status and identify the TVES API.
+The response should report an `ok` status and identify the API (the backend health message may still say BES until the backend source is updated).
+
+### Where to enter environment variables in Render
+
+Environment variables are entered on the **backend Web Service**, not in the repository files:
+
+1. Sign in to <https://dashboard.render.com>.
+2. Open the BES backend **Web Service** you created.
+3. In the service navigation, open **Environment**. Depending on the current Render dashboard layout, this may appear as **Environment Variables** under the service settings.
+4. Click **Add Environment Variable**.
+5. Enter the variable name in the **Key** field and its value in the **Value** field.
+6. Add each required variable from the table below. Do not include quotation marks around values.
+7. Click **Save Changes**. Render will restart or redeploy the service so the new values are available to `process.env`.
+
+Render masks secret values after they are saved. Use the edit control to replace a value; do not paste secrets into the source code, README, build logs, or support messages. The `.env.example` file is only a list of names and safe examples—it is not uploaded to Render automatically.
+
+#### Backend variables to add in Render
+
+Add these to the Render **backend Web Service → Environment** page:
+
+| Key | Value to enter | Required | Notes |
+|---|---|---:|---|
+| `DB_HOST` | TiDB Cloud gateway hostname | Yes | Copy from TiDB Cloud → **Connect**. Do not include `https://`. |
+| `DB_PORT` | `4000` | Yes | TiDB Cloud normally uses port 4000. |
+| `DB_USER` | TiDB database user | Yes | Copy the generated TiDB user. |
+| `DB_PASSWORD` | TiDB database password | Yes | Store only as a Render secret value. |
+| `DB_NAME` | `bes_db` | Yes | Must match the database created and seeded in TiDB Cloud. |
+| `DB_SSL` | `true` | Yes | Required for the TiDB Cloud connection. |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | Yes for uploads | Copy from Cloudinary Dashboard → **Settings → API Keys**. |
+| `CLOUDINARY_API_KEY` | Cloudinary API key | Yes for uploads | Keep private even though Cloudinary displays the key. |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret | Yes for uploads | Store only as a Render secret value. |
+| `JWT_SECRET` | A long random private string | Yes | Used to sign admin sessions. Generate a different value for production. |
+| `ADMIN_MAGIC_CODE` | A long private login code | Yes | Used in the admin URL. Do not use school ID `107957`. |
+| `FRONTEND_URL` | Final Netlify site URL | Yes | Example: `https://bes-school.netlify.app`; omit a trailing slash. |
+| `PORT` | Leave unset | No | Render supplies the listening port automatically. The API already reads Render's `PORT`. |
+
+For example, the Render form should contain rows like these, but real passwords, secrets, and private codes must be entered only in Render:
+
+```text
+DB_HOST              gateway01.<region>.prod.aws.tidbcloud.com
+DB_PORT              4000
+DB_USER              <your TiDB user>
+DB_PASSWORD          <your TiDB password>
+DB_NAME              bes_db
+DB_SSL               true
+CLOUDINARY_CLOUD_NAME <your Cloudinary cloud name>
+CLOUDINARY_API_KEY   <your Cloudinary API key>
+CLOUDINARY_API_SECRET <your Cloudinary API secret>
+JWT_SECRET           <your long random secret>
+ADMIN_MAGIC_CODE     <your private admin code>
+FRONTEND_URL         https://<your-site>.netlify.app
+```
+
+After saving, open the Render **Logs** tab and look for a successful BES backend startup message. Then open `https://<your-render-service>.onrender.com/api/health`. If the health endpoint works but public pages show CORS errors, check that `FRONTEND_URL` exactly matches the browser URL, including `https://` and excluding the trailing slash.
 
 ## Netlify frontend deployment
 
@@ -121,10 +174,10 @@ The response should report an `ok` status and identify the TVES API.
 3. Use:
    - Build command: `npm run build`
    - Publish directory: `dist`
-4. Set `VITE_API_URL` to the deployed Render API base URL, for example:
+4. In Netlify, open **Site configuration → Environment variables** and add `VITE_API_URL` for the frontend build. This variable does **not** belong in the Render backend service:
 
 ```env
-VITE_API_URL=https://<your-render-service>.onrender.com
+VITE_API_URL=https://bes-website.onrender.com
 ```
 
 5. Deploy. The included SPA fallback configuration keeps React routes working on refresh.
@@ -145,13 +198,15 @@ ADMIN_MAGIC_CODE=<long-private-value>
 JWT_SECRET=<long-random-value>
 ```
 
-The example value `TVES-ADMIN-CHANGE-ME` is for development only. Change it before deployment and do not publish it in documentation, screenshots, or source control. The school ID `107967` is not an admin password.
+The example value `BES-ADMIN-CHANGE-ME` is for development only. Change it before deployment and do not publish it in documentation, screenshots, or source control. The school ID `107957` is not an admin password.
 
-After signing in, use the admin panel to edit content, school information, dashboard figures, calendars, news, staff, FAQs, feedback links, Careers, and Guidance & Student Services. The admin login page and storage key are TVES-branded.
+> **Important:** the magic code `BES-ADMIN-CHANGE-ME` also appears as the logout/expired-session redirect in `src/components/admin/AdminLayout.jsx`, `src/components/admin/RequireAuth.jsx`, and `src/utils/api.js`. After you choose your real private `ADMIN_MAGIC_CODE`, update those three places to match.
+
+After signing in, use the admin panel to edit content, school information, dashboard figures, calendars, news, staff, FAQs, feedback links, Careers, and Guidance & Student Services. The admin login page and storage key are BES-branded.
 
 ## First publishing checklist
 
-- [ ] Run schema and TVES seed against the intended database.
+- [ ] Run schema and BES seed against the intended database.
 - [ ] Set a unique `JWT_SECRET`.
 - [ ] Set a private `ADMIN_MAGIC_CODE`.
 - [ ] Configure TiDB SSL and verify the health endpoint.
@@ -159,7 +214,7 @@ After signing in, use the admin panel to edit content, school information, dashb
 - [ ] Deploy Render and set its `FRONTEND_URL`.
 - [ ] Deploy Netlify with the Render API URL.
 - [ ] Test the public homepage, contact form, Careers, Guidance, and admin login.
-- [ ] Replace logo, map, Facebook, staff roster, committees, PPAs, and organization-chart placeholders when official assets/data are available.
+- [ ] Replace logo, map, staff grade-level assignments, committees, vision/mission/goals, and organization-chart placeholders when official assets/data are available.
 
 ## Main routes
 

@@ -9,7 +9,7 @@ const authenticateAdmin = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'tves-development-secret-change-me');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'bes-development-secret-change-me');
     req.admin = decoded;
     next();
   } catch (err) {

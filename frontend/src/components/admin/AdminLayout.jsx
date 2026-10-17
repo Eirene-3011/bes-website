@@ -40,8 +40,8 @@ export default function AdminLayout() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('tves_admin_token');
-    navigate('/admin/login/TVES-ADMIN-CHANGE-ME');
+    localStorage.removeItem('bes_admin_token');
+    navigate('/admin/login/BES-ADMIN-CHANGE-ME');
   };
 
   const isActive = (item) => {
@@ -54,11 +54,11 @@ export default function AdminLayout() {
       {/* Sidebar */}
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
-           <img src="/uploads/logo.png" alt="TVES logo placeholder" className="admin-sidebar-logo" onError={e => e.target.style.display='none'} />
+           <img src="/uploads/logo.png" alt="BES logo placeholder" className="admin-sidebar-logo" onError={e => e.target.style.display='none'} />
           {sidebarOpen && (
             <div>
-               <p className="admin-sidebar-title">TVES Admin</p>
-               <p className="admin-sidebar-sub">School ID: 107967</p>
+               <p className="admin-sidebar-title">BES Admin</p>
+               <p className="admin-sidebar-sub">School ID: 107957</p>
             </div>
           )}
           <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>

@@ -1,10 +1,12 @@
 -- ============================================================
--- Tropical Village Elementary School Website — MySQL/TiDB Schema
--- Tropical Village Elementary School (School ID: 107967)
+-- Bacao Elementary School Website — MySQL/TiDB Schema
+-- Bacao Elementary School (School ID: 107957)
+-- FIXED: TEXT/BLOB/JSON columns cannot have literal DEFAULT values
+--        in MySQL/TiDB. Affected columns changed to VARCHAR(500).
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS tves_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE tves_db;
+CREATE DATABASE IF NOT EXISTS bes_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE bes_db;
 
 -- Admin Users
 CREATE TABLE IF NOT EXISTS admin_users (
@@ -19,32 +21,36 @@ CREATE TABLE IF NOT EXISTS admin_users (
 -- Single-row school settings
 CREATE TABLE IF NOT EXISTS school_info (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  school_name VARCHAR(255) NOT NULL DEFAULT 'Tropical Village Elementary School',
-  school_id_no VARCHAR(50) DEFAULT '107967',
+  school_name VARCHAR(255) NOT NULL DEFAULT 'Bacao Elementary School',
+  school_id_no VARCHAR(50) DEFAULT '107957',
   school_type VARCHAR(100) DEFAULT 'Public Elementary',
-  address TEXT DEFAULT 'Pabahay 2000, Tropical Village, Brgy. San Francisco, General Trias City, Cavite',
+  address VARCHAR(500) DEFAULT 'Purok 7, Bacao 2, General Trias City, Cavite',
   region VARCHAR(100) DEFAULT 'Region IV-A CALABARZON',
   province VARCHAR(100) DEFAULT 'Cavite',
   city VARCHAR(100) DEFAULT 'General Trias City',
-  district_division VARCHAR(150) DEFAULT 'Cluster 7',
-  year_established VARCHAR(20) DEFAULT '1995',
-  principal_name VARCHAR(255) DEFAULT 'Imelda S. Arevalo',
-  principal_title VARCHAR(150) DEFAULT 'Principal II',
-  motto TEXT DEFAULT 'Teach with heart, Value each child, Excel together, Serve with pride',
+  district_division VARCHAR(150) DEFAULT 'Schools Division Office of General Trias City',
+  year_established VARCHAR(20) DEFAULT '1915',
+  principal_name VARCHAR(255) DEFAULT 'Myra P. Aro',
+  principal_title VARCHAR(150) DEFAULT 'Principal I',
+  motto TEXT,
   landline VARCHAR(50) DEFAULT '',
-  mobile VARCHAR(50) DEFAULT '0998-510-7967',
-  email VARCHAR(255) DEFAULT '107967@deped.gov.ph',
-  domain VARCHAR(255) DEFAULT 'DepEdTropicalVillageEs.com',
+  mobile VARCHAR(50) DEFAULT '0966-486-1467',
+  email VARCHAR(255) DEFAULT '107957@deped.gov.ph',
+  domain VARCHAR(255) DEFAULT 'DepEd Bacao Elementary School',
   office_hours VARCHAR(255) DEFAULT 'Monday–Friday, 8:00 AM – 5:00 PM',
-  google_maps_link TEXT DEFAULT '',
-  facebook_url TEXT DEFAULT '',
-  youtube_url TEXT DEFAULT '',
-  instagram_url TEXT DEFAULT '',
-  tiktok_url TEXT DEFAULT '',
+  google_maps_link VARCHAR(500) DEFAULT '',
+  facebook_url VARCHAR(500) DEFAULT '',
+  youtube_url VARCHAR(500) DEFAULT '',
+  instagram_url VARCHAR(500) DEFAULT '',
+  tiktok_url VARCHAR(500) DEFAULT '',
   logo_url VARCHAR(500) DEFAULT '',
   principal_photo_url VARCHAR(500) DEFAULT '',
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- Seed the motto (TEXT columns can't carry an inline DEFAULT, so set it explicitly)
+INSERT INTO school_info (motto)
+VALUES ('Be Your Best at BES');
 
 -- Content blocks (Vision, Mission, History, Core Values, Goals, etc.)
 CREATE TABLE IF NOT EXISTS content_blocks (
@@ -66,6 +72,7 @@ CREATE TABLE IF NOT EXISTS banner_images (
   image_url VARCHAR(500) NOT NULL,
   caption VARCHAR(500),
   sort_order INT DEFAULT 0,
+  type VARCHAR(50) DEFAULT 'general',
   is_active TINYINT(1) DEFAULT 1,
   observance_tag VARCHAR(100) DEFAULT NULL,
   observance_label VARCHAR(255) DEFAULT NULL,
@@ -379,7 +386,7 @@ CREATE TABLE IF NOT EXISTS news_and_updates (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Alumni records (kept empty until TVES provides verified alumni information)
+-- Alumni records (kept empty until BES provides verified alumni information)
 CREATE TABLE IF NOT EXISTS alumni (
   id INT AUTO_INCREMENT PRIMARY KEY,
   full_name VARCHAR(255) NOT NULL,

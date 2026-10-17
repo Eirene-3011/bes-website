@@ -48,7 +48,7 @@ export default function AlumniPage() {
       <div className="page-header">
         <div className="container">
           <h1>Alumni</h1>
-          <p>Proud graduates of Tropical Village Elementary School</p>
+          <p>Proud graduates of Bacao Elementary School</p>
         </div>
       </div>
 

@@ -11,7 +11,7 @@ const GRADE_LEVELS = [
   { key: 'Grade 4', label: 'Grade 4', sort: 5 },
   { key: 'Grade 5', label: 'Grade 5', sort: 6 },
   { key: 'Grade 6', label: 'Grade 6', sort: 7 },
-  { key: 'Madrasah', label: 'Madrasah', sort: 8 },
+  { key: 'SPED', label: 'SPED', sort: 8 },
 ];
 
 /* ─── Accountability items ──────────────────────────────────── */

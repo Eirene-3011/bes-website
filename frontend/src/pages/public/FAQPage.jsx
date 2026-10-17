@@ -17,7 +17,7 @@ export default function FAQPage() {
         <div className="container">
           <div className="breadcrumb"><Link to="/">Home</Link> › <Link to="/contact">Contact</Link> › FAQ</div>
           <h1>Frequently Asked Questions</h1>
-          <p>Answers to common questions about TVES</p>
+          <p>Answers to common questions about BES</p>
         </div>
       </div>
       <section className="section">

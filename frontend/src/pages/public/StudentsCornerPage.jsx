@@ -43,7 +43,7 @@ export default function StudentsCornerPage() {
       <div className="page-header">
         <div className="container">
           <h1>Featured Students</h1>
-          <p>Celebrating the inspiring achievements of our TVES learners</p>
+          <p>Celebrating the inspiring achievements of our BES learners</p>
         </div>
       </div>
 

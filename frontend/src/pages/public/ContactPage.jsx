@@ -34,9 +34,9 @@ export default function ContactPage() {
   const feedbackLink = feedbackLinks.find(f => f.type === 'general_feedback');
 
   const contactDetails = [
-    { Icon: IconMapPin, label: 'Address', val: info?.address || 'Pabahay 2000, Tropical Village, Brgy. San Francisco, General Trias City, Cavite' },
-    { Icon: IconPhone, label: 'Mobile', val: info?.mobile || '0998-510-7967' },
-    { Icon: IconMail, label: 'Email', val: info?.email || '107967@deped.gov.ph' },
+    { Icon: IconMapPin, label: 'Address', val: info?.address || 'Purok 7, Bacao 2, General Trias City, Cavite' },
+    { Icon: IconPhone, label: 'Mobile', val: info?.mobile || '(046) 230 3506 / 0966-486-1467' },
+    { Icon: IconMail, label: 'Email', val: info?.email || '107957@deped.gov.ph' },
     { Icon: IconClock, label: 'Office Hours', val: info?.office_hours || 'Monday–Friday, 8:00 AM–5:00 PM' },
   ];
 
@@ -46,7 +46,7 @@ export default function ContactPage() {
         <div className="container">
           <div className="breadcrumb"><Link to="/">Home</Link> › Contact Us</div>
           <h1>Contact Us</h1>
-          <p>Reach out to Tropical Village Elementary School</p>
+          <p>Reach out to Bacao Elementary School</p>
         </div>
       </div>
 
@@ -74,7 +74,7 @@ export default function ContactPage() {
                   <iframe
                     src={info.google_maps_link}
                     width="100%" height="250" style={{ border: 0, display: 'block' }}
-                    allowFullScreen loading="lazy" title="TVES location map"
+                    allowFullScreen loading="lazy" title="BES location map"
                     referrerPolicy="no-referrer-when-downgrade">
                   </iframe>
                 ) : (

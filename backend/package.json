@@ -1,7 +1,7 @@
 {
-  "name": "tves-backend",
+  "name": "bes-backend",
   "version": "1.0.0",
-  "description": "Tropical Village Elementary School Official Website — Backend API",
+  "description": "Bacao Elementary School Official Website — Backend API",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

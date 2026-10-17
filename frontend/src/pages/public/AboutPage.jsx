@@ -23,7 +23,7 @@ import {
 // then the community it serves — instead of an arbitrary list.
 const SECTIONS = [
   { key: 'history', label: 'School History', Icon: IconClock },
-  { key: 'historical_development', label: 'Historical Development of TVES', Icon: IconLayers },
+  { key: 'historical_development', label: 'Historical Development of BES', Icon: IconLayers },
   { key: 'chronology_of_school_heads', label: 'Chronology of School Heads', Icon: IconUser },
   { key: 'vision', label: 'Vision', Icon: IconCompass },
   { key: 'mission', label: 'Mission', Icon: IconTarget },
@@ -132,7 +132,7 @@ export default function AboutPage() {
       {/* Hero */}
       <div className="page-header">
         <div className="container">
-          <h1>About TVES</h1>
+          <h1>About BES</h1>
         </div>
       </div>
 
@@ -141,7 +141,7 @@ export default function AboutPage() {
         <div className="container">
           <h2 className="section-title">School Profile</h2>
           <p className="section-subtitle">
-            The story, identity, and community that define Tropical Village Elementary School.
+            The story, identity, and community that define Bacao Elementary School.
           </p>
 
           {loading ? (

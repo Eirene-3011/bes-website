@@ -1,7 +1,7 @@
 :root {
-  --footer-green-deep: #082c1d;
-  --footer-green: #0f3d29;
-  --footer-green-brand: #12452d;
+  --footer-green-deep: #0B1F4A;
+  --footer-green: #12306B;
+  --footer-green-brand: #14336B;
   --footer-gold: #f2c94c;
   --footer-red: #d94841;
   --footer-white: #ffffff;
@@ -162,7 +162,7 @@
   transform: translateY(-3px);
   border-color: var(--footer-gold);
   background: var(--footer-gold);
-  color: #183321;
+  color: #1B2A4A;
 }
 
 .social-btn.youtube:hover {
@@ -290,8 +290,8 @@
   height: 7px;
   margin-top: 5px;
   border-radius: 50%;
-  background: #43a047;
-  box-shadow: 0 0 0 5px rgba(67, 160, 71, 0.12);
+  background: #5B8FE0;
+  box-shadow: 0 0 0 5px rgba(91,143,224, 0.12);
 }
 
 .footer-bottom {

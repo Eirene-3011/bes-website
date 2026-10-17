@@ -65,8 +65,8 @@ app.use('/api/news-updates',                      require('./routes/newsAndUpdat
 app.use("/api/visitor-stats",                     require("./routes/visitorStats"));
 
 // Health check
-app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'TVES API' }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'BES API' }));
 
 app.listen(PORT, () => {
-  console.log(`TVES Backend running on port ${PORT}`);
+  console.log(`BES Backend running on port ${PORT}`);
 });

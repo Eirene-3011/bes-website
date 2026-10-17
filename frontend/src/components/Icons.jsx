@@ -1,5 +1,5 @@
 /* ============================================================
-   TVES Icon Set
+   BES Icon Set
    Minimal, consistent 24x24 stroke icons used across the About
    section in place of emoji. All accept `size` and any SVG prop
    (e.g. className, style) and inherit color via currentColor.

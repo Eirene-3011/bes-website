@@ -32,7 +32,7 @@ export default function PPAsPage() {
       <div className="page-header">
         <div className="container">
           <h1>Programs, Projects &amp; Activities</h1>
-          <p>School programs, annual projects, and learning activities at TVES</p>
+          <p>School programs, annual projects, and learning activities at BES</p>
         </div>
       </div>
 

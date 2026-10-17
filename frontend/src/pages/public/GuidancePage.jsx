@@ -10,14 +10,14 @@ export default function GuidancePage() {
       .catch(() => {});
   }, []);
 
-  const fallback = '<p><strong>Coming soon.</strong> TVES guidance, counselling, referral, and student-support information will be published here after official confirmation.</p>';
+  const fallback = '<p><strong>Coming soon.</strong> BES guidance, counselling, referral, and student-support information will be published here after official confirmation.</p>';
 
   return (
     <div className="guidance-page">
       <div className="page-header">
         <div className="container">
           <h1>Guidance, Counselling &amp; Student Services</h1>
-          <p>Support services for TVES learners and families</p>
+          <p>Support services for BES learners and families</p>
         </div>
       </div>
 
@@ -42,7 +42,7 @@ export default function GuidancePage() {
               <span className="section-eyebrow">A caring pathway</span>
               <h3>Support starts with listening.</h3>
               <p>
-                TVES works with learners and families to encourage wellbeing, positive participation, and continued growth.
+                BES works with learners and families to encourage wellbeing, positive participation, and continued growth.
               </p>
               <div className="divider-stitch" />
               <p>

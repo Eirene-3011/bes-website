@@ -51,7 +51,7 @@ export default function AccomplishmentsPage() {
       <div className="page-header">
         <div className="container">
           <h1>School Accomplishments</h1>
-          <p>Awards, recognitions, and milestones achieved by TVES</p>
+          <p>Awards, recognitions, and milestones achieved by BES</p>
         </div>
       </div>
 

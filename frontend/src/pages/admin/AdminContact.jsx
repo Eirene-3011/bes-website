@@ -47,7 +47,7 @@ export default function AdminContact() {
                   <td>
                     <div style={{ display: 'flex', gap: 6 }}>
                       {!m.is_read && <button className="btn btn-ghost btn-sm" onClick={() => markRead(m.id)}>✅ Mark Read</button>}
-                      {m.sender_email && <a href={`mailto:${m.sender_email}?subject=Re: ${m.subject || 'Your inquiry to TVES'}`} className="btn btn-ghost btn-sm">📧 Reply</a>}
+                      {m.sender_email && <a href={`mailto:${m.sender_email}?subject=Re: ${m.subject || 'Your inquiry to BES'}`} className="btn btn-ghost btn-sm">📧 Reply</a>}
                       <button className="btn btn-ghost btn-sm" style={{ color: 'var(--red-primary)' }} onClick={() => handleDelete(m.id)}>🗑️</button>
                     </div>
                   </td>

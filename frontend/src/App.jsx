@@ -120,8 +120,8 @@ export default function App() {
           {/* ✅ NEW */}
           <Route path="alumni" element={<AdminAlumni />} />
           <Route path="news-updates" element={<AdminNewsAndUpdates />} />
-           <Route path="careers" element={<AdminComingSoon title="Careers & Job Vacancies" description="Prepare and publish TVES employment opportunity information." />} />
-           <Route path="guidance" element={<AdminComingSoon title="Guidance, Counselling & Student Services" description="Prepare and publish TVES learner-support information." />} />
+           <Route path="careers" element={<AdminComingSoon title="Careers & Job Vacancies" description="Prepare and publish BES employment opportunity information." />} />
+           <Route path="guidance" element={<AdminComingSoon title="Guidance, Counselling & Student Services" description="Prepare and publish BES learner-support information." />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { getImageUrl } from '../../utils/helpers';
 import { IconSearch, IconUser, IconUsers } from '../../components/Icons';
 
-const GRADES = ['Kinder', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Madrasah'];
+const GRADES = ['Kinder', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'SPED'];
 const BLANK = { full_name: '', position_subject: '', section_name: '', department_grade_level: '', years_in_service: 0, contact_no: '', sort_order: 0 };
 
 const STATUS_LABEL = {

@@ -35,7 +35,7 @@ const storage = new CloudinaryStorage({
     const uniqueSuffix = Date.now(); // avoid overwriting files with the same name
 
     return {
-      folder: 'tves-uploads',
+      folder: 'bes-uploads',
       resource_type: isDoc ? 'raw' : 'image',
       allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx', 'xlsx', 'xls'],
       // 'raw' files (PDF/Word/Excel) need the extension baked into public_id,

@@ -6,7 +6,7 @@ export default function RequireAuth({ children }) {
   const [status, setStatus] = useState('checking'); // checking | ok | fail
 
   useEffect(() => {
-    const token = localStorage.getItem('tves_admin_token');
+    const token = localStorage.getItem('bes_admin_token');
     if (!token) { setStatus('fail'); return; }
     api.get('/auth/verify')
       .then(r => setStatus(r.data.valid ? 'ok' : 'fail'))
@@ -18,6 +18,6 @@ export default function RequireAuth({ children }) {
       <div className="spinner"></div>
     </div>
   );
-  if (status === 'fail') return <Navigate to="/admin/login/TVES-ADMIN-CHANGE-ME" replace />;
+  if (status === 'fail') return <Navigate to="/admin/login/BES-ADMIN-CHANGE-ME" replace />;
   return children;
 }

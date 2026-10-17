@@ -6,7 +6,7 @@ import { IconLayers, IconUser } from '../../components/Icons';
 
 const PLACEHOLDER_AVATAR = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" fill="%23e5e7eb"/><circle cx="40" cy="30" r="16" fill="%239ca3af"/><ellipse cx="40" cy="62" rx="24" ry="16" fill="%239ca3af"/></svg>';
 
-const GRADE_LEVELS = ['Kinder', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Madrasah', 'Non-Teaching'];
+const GRADE_LEVELS = ['Kinder', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'SPED', 'Non-Teaching'];
 
 export default function OrgStructurePage() {
   const [orgChart, setOrgChart] = useState(null);
@@ -107,7 +107,7 @@ export default function OrgStructurePage() {
             <div className="card" style={{ padding: 0, overflow: 'hidden', marginBottom: 32 }}>
               <img
                 src={getImageUrl(orgChart.image_url)}
-                alt="TVES Organizational Chart placeholder"
+                alt="BES Organizational Chart placeholder"
                 style={{ width: '100%', height: 'auto', display: 'block' }}
                 onError={e => { e.target.style.display = 'none'; }}
               />
@@ -232,7 +232,7 @@ export default function OrgStructurePage() {
             Faculty &amp; Staff Directory
           </h2>
           <p style={{ color: 'var(--gray-500)', fontSize: '0.88rem', marginBottom: 28 }}>
-            Teaching and non-teaching personnel of TVES, grouped by elementary grade level. Click a profile to view more.
+            Teaching and non-teaching personnel of BES, grouped by elementary grade level. Click a profile to view more.
           </p>
 
           {loading ? (
