@@ -1,30 +1,19 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../utils/api';
-import { getImageUrl } from '../../utils/helpers';
 import {
-  IconCompass,
-  IconTarget,
-  IconGem,
-  IconFlag,
-  IconClock,
-  IconLayers,
-  IconScroll,
-  IconUsers,
-  IconBuilding,
-  IconHash,
-  IconMapPin,
-  IconCalendar,
-  IconGlobe,
-  IconUser,
+  IconCompass, IconTarget, IconGem, IconFlag, IconClock, IconLayers, IconScroll,
+  IconUsers, IconBuilding, IconHash, IconMapPin, IconCalendar, IconGlobe, IconUser,
 } from '../../components/Icons';
+import {
+  C, card, useWide, useScrollSpy, PageHero, Ticket, TabBar, SectionHead, Notice, sectionPad, mainBox,
+} from '../../components/PaperKit';
 
-// Ordered as a narrative: where the school came from, who it is today,
-// then the community it serves — instead of an arbitrary list.
+// Ordered as a narrative: where the school came from, who it is today, the community it serves.
 const SECTIONS = [
   { key: 'history', label: 'School History', Icon: IconClock },
-  { key: 'historical_development', label: 'Historical Development of BES', Icon: IconLayers },
-  { key: 'chronology_of_school_heads', label: 'Chronology of School Heads', Icon: IconUser },
+  { key: 'historical_development', label: 'Historical Development', Icon: IconLayers },
+  { key: 'chronology_of_school_heads', label: 'School Heads', Icon: IconUser },
   { key: 'vision', label: 'Vision', Icon: IconCompass },
   { key: 'mission', label: 'Mission', Icon: IconTarget },
   { key: 'core_values', label: 'Core Values', Icon: IconGem },
@@ -32,194 +21,132 @@ const SECTIONS = [
   { key: 'community_profile', label: 'Community Profile', Icon: IconUsers },
   { key: 'demographics', label: 'Demographics', Icon: IconBuilding },
 ];
+const FULL_TITLES = {
+  historical_development: 'Historical Development of BES',
+  chronology_of_school_heads: 'Chronology of School Heads',
+};
 
 const SUB_PAGES = [
-  { label: 'Organizational Structure', path: '/about/organizational-structure', Icon: IconLayers, desc: 'School org chart and officials' },
-  { label: "Citizen's Charter", path: '/about/citizens-charter', Icon: IconScroll, desc: 'Our service standards per RA 11032' },
-  { label: 'Committees & Councils', path: '/about/committees', Icon: IconUsers, desc: 'PTA, SPTA, SSG, and more' },
+  { label: 'Organizational Structure', path: '/about/organizational-structure', Icon: IconLayers, desc: 'School org chart, officials, faculty and staff' },
+  { label: "Citizen's Charter", path: '/about/citizens-charter', Icon: IconScroll, desc: 'Our service standards under RA 11032' },
+  { label: 'Committees & Councils', path: '/about/committees', Icon: IconUsers, desc: 'PTA, SPTA, SSG and more' },
 ];
 
+const hasBody = (b) => !!b?.body_richtext && b.body_richtext.replace(/<[^>]*>/g, '').trim().length > 0;
+
 export default function AboutPage() {
+  const wide = useWide();
   const [content, setContent] = useState({});
   const [info, setInfo] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState(SECTIONS[0].key);
-  const revealScope = useRef(null);
-  const sectionRefs = useRef({});
 
   useEffect(() => {
-    Promise.all([
-      api.get('/content/about'),
-      api.get('/school-info'),
-    ]).then(([c, s]) => {
-      const map = {};
-      c.data.forEach(b => { map[b.section_key] = b; });
-      setContent(map);
-      setInfo(s.data);
-    }).catch(console.error).finally(() => setLoading(false));
+    Promise.all([api.get('/content/about'), api.get('/school-info')])
+      .then(([c, s]) => {
+        const map = {};
+        c.data.forEach((b) => { map[b.section_key] = b; });
+        setContent(map);
+        setInfo(s.data);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
-  // Progressive-enhancement scroll reveal. If JS never runs (or a user
-  // prefers reduced motion), everything is already visible by default —
-  // elements only dim/lift once we've confirmed we can animate them back in.
-  useEffect(() => {
-    if (loading || !revealScope.current) return;
+  // Only sections that have text get a tab and a block; the rest are listed once at the end.
+  const filled = SECTIONS.filter((s) => hasBody(content[s.key]));
+  const pending = SECTIONS.filter((s) => !hasBody(content[s.key]));
+  const [active, go] = useScrollSpy(filled.map((s) => s.key), !loading);
 
-    const targets = revealScope.current.querySelectorAll('.reveal-target');
-    if (!targets.length) return;
-
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return;
-
-    targets.forEach(el => el.classList.add('reveal-pending'));
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.remove('reveal-pending');
-            entry.target.classList.add('reveal-in');
-            io.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.15, rootMargin: '0px 0px -60px 0px' }
-    );
-
-    targets.forEach(el => io.observe(el));
-    return () => io.disconnect();
-  }, [loading]);
-
-  // Scroll-spy: highlights the current section in the table of contents.
-  useEffect(() => {
-    if (loading) return;
-
-    const els = SECTIONS
-      .map(sec => sectionRefs.current[sec.key])
-      .filter(Boolean);
-    if (!els.length) return;
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) setActiveSection(entry.target.id);
-        });
-      },
-      { threshold: 0, rootMargin: '-15% 0px -70% 0px' }
-    );
-
-    els.forEach(el => io.observe(el));
-    return () => io.disconnect();
-  }, [loading]);
-
-  const registerSectionRef = useCallback((key) => (el) => {
-    if (el) sectionRefs.current[key] = el;
-  }, []);
-
+  const head = info?.principal_name ? [info.principal_name, info.principal_title].filter(Boolean).join(', ') : null;
   const infoRows = info ? [
-    { label: 'School Name', val: info.school_name, Icon: IconBuilding },
-    { label: 'School ID', val: info.school_id_no, mono: true, Icon: IconHash },
-    { label: 'School Type', val: info.school_type, badge: true, Icon: IconBuilding },
+    { label: 'School name', val: info.school_name, Icon: IconBuilding },
+    { label: 'School ID', val: info.school_id_no, Icon: IconHash },
+    { label: 'School type', val: info.school_type, Icon: IconBuilding },
     { label: 'Address', val: info.address, Icon: IconMapPin },
-    { label: 'Year Established', val: info.year_established, mono: true, Icon: IconCalendar },
+    { label: 'Year established', val: info.year_established, Icon: IconCalendar },
     { label: 'Division', val: info.district_division, Icon: IconLayers },
     { label: 'Region', val: info.region, Icon: IconGlobe },
-    { label: 'School Head', val: `${info.principal_name}, ${info.principal_title}`, Icon: IconUser },
-  ] : [];
+    { label: 'School head', val: head, Icon: IconUser },
+  ].filter((r) => r.val) : [];
+
+  const ticket = info && (
+    <Ticket wide={wide} Icon={IconBuilding} ariaLabel="School at a glance"
+      label={info.year_established ? 'Serving learners since' : 'Public elementary school'}
+      value={info.year_established || info.school_name}
+      rows={[
+        info.school_id_no && { Icon: IconHash, label: 'School ID', value: info.school_id_no },
+        info.district_division && { Icon: IconLayers, label: 'Division', value: info.district_division },
+        head && { Icon: IconUser, label: 'School head', value: info.principal_name },
+      ].filter(Boolean)} />
+  );
 
   return (
-    <div ref={revealScope}>
-      {/* Hero */}
-      <div className="page-header">
-        <div className="container">
-          <h1>About BES</h1>
-        </div>
-      </div>
+    <div style={{ background: C.cream, color: C.ink, paddingBottom: 96 }}>
+      <PageHero wide={wide} tag="About BES" title="The story of Bacao Elementary School."
+        intro="Where we came from, what we stand for, and the community we serve." aside={ticket} />
 
-      {/* School Profile: sidebar table of contents + section cards */}
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">School Profile</h2>
-          <p className="section-subtitle">
-            The story, identity, and community that define Bacao Elementary School.
-          </p>
+      {!loading && filled.length > 1 && <TabBar items={filled.map((s) => ({ id: s.key, label: s.label }))} active={active} onSelect={go} label="About sections" />}
 
-          {loading ? (
-            <div style={{ maxWidth: 720 }}>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} style={{ marginBottom: 32 }}>
-                  <div className="skeleton" style={{ width: '30%', height: 20, marginBottom: 14 }} />
-                  <div className="skeleton" style={{ width: '100%', height: 60 }} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="about-layout">
-              <aside className="about-toc" aria-label="Section navigation">
-                <p className="about-toc-title">On this page</p>
-                <ul className="about-toc-list">
-                  {SECTIONS.map(sec => (
-                    <li key={sec.key}>
-                      <a
-                        href={`#${sec.key}`}
-                        className={`about-toc-link${activeSection === sec.key ? ' about-toc-link-active' : ''}`}
-                      >
-                        <sec.Icon size={15} />
-                        <span>{sec.label}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </aside>
-
-              <div className="about-sections">
-                {SECTIONS.map((sec, i) => (
-                  <div
-                    key={sec.key}
-                    id={sec.key}
-                    ref={registerSectionRef(sec.key)}
-                    className="about-section card reveal-target"
-                    style={{ transitionDelay: `${(i % 4) * 60}ms` }}
-                  >
-                    <div className="about-section-header">
-                      <span className="about-section-icon"><sec.Icon size={18} /></span>
-                      <h2 className="about-section-title">{sec.label}</h2>
+      <main className="container" style={mainBox(wide)}>
+        {loading ? (
+          <div style={{ paddingTop: 40 }}>
+            {[0, 1, 2].map((i) => <div key={i} className="skeleton" style={{ height: 120, borderRadius: 12, marginBottom: 20 }} />)}
+          </div>
+        ) : (
+          <>
+            {infoRows.length > 0 && (
+              <dl style={{ margin: wide ? '40px 0 0' : '28px 0 0', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', ...card, overflow: 'hidden' }}>
+                {infoRows.map(({ label, val, Icon }) => (
+                  <div key={label} style={{ padding: '16px 22px', borderTop: `1px solid ${C.line}`, marginTop: -1, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                    <span style={{ color: C.red, marginTop: 2, display: 'flex' }}><Icon size={16} /></span>
+                    <div style={{ minWidth: 0 }}>
+                      <dt style={{ fontSize: '0.8rem', fontWeight: 700, color: C.muted }}>{label}</dt>
+                      <dd style={{ margin: '3px 0 0', fontWeight: 700, fontSize: '0.95rem' }}>{val}</dd>
                     </div>
-                    <div
-                      className="rich-content"
-                      dangerouslySetInnerHTML={{
-                        __html: content[sec.key]?.body_richtext || '<p><em>Content coming soon.</em></p>',
-                      }}
-                    />
                   </div>
                 ))}
-              </div>
-            </div>
-          )}
+              </dl>
+            )}
 
-          {/* Sub-page links */}
-          <div className="divider-stitch" />
-          <div className="grid-auto">
-            {SUB_PAGES.map((l, i) => (
-              <Link
-                key={l.label}
-                to={l.path}
-                className="card subpage-card card-body reveal-target"
-                style={{ transitionDelay: `${i * 70}ms` }}
-              >
-                <div className="subpage-icon" aria-hidden="true">
-                  <l.Icon size={22} />
-                </div>
-                <h3 className="subpage-title">
-                  {l.label}
-                  <span className="subpage-arrow">→</span>
-                </h3>
-                <p className="subpage-desc">{l.desc}</p>
-              </Link>
+            {filled.length === 0 && (
+              <div style={sectionPad(wide)}>
+                <Notice Icon={IconClock} title="The school profile has not been posted yet.">
+                  Check back soon, or visit the school office to learn more about BES.
+                </Notice>
+              </div>
+            )}
+
+            {filled.map((s) => (
+              <section key={s.key} id={s.key} style={sectionPad(wide)}>
+                <SectionHead Icon={s.Icon} title={FULL_TITLES[s.key] || s.label} />
+                <div className="rich-content" style={{ ...card, padding: wide ? 32 : 20 }}
+                  dangerouslySetInnerHTML={{ __html: content[s.key].body_richtext }} />
+              </section>
             ))}
-          </div>
-        </div>
-      </section>
+
+            {pending.length > 0 && filled.length > 0 && (
+              <div style={{ marginTop: 32 }}>
+                <Notice Icon={IconClock} title="Still being written">
+                  {pending.map((p) => p.label).join(', ')}.
+                </Notice>
+              </div>
+            )}
+
+            <section style={sectionPad(wide)}>
+              <SectionHead Icon={IconLayers} title="More about BES" />
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16 }}>
+                {SUB_PAGES.map((l) => (
+                  <Link key={l.path} to={l.path} style={{ ...card, padding: '22px 22px', textDecoration: 'none', display: 'block', borderTop: `4px solid ${C.red}` }}>
+                    <span style={{ display: 'grid', placeItems: 'center', width: 44, height: 44, borderRadius: 10, background: '#FBE3E3', color: C.red, marginBottom: 14 }}><l.Icon size={22} /></span>
+                    <h3 style={{ margin: 0, fontWeight: 800, fontSize: '1.05rem', letterSpacing: '-0.02em' }}>{l.label}</h3>
+                    <p style={{ margin: '6px 0 0', fontSize: 14, lineHeight: 1.5, color: C.muted }}>{l.desc}</p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
+      </main>
     </div>
   );
 }
