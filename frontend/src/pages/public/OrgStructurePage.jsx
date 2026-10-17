@@ -202,6 +202,7 @@ export default function OrgStructurePage() {
   const [filter, setFilter] = useState('All');
   const [chartFailed, setChartFailed] = useState(false);
   const closeRef = useRef(null);
+  const dialogRef = useRef(null);
 
   useEffect(() => {
     Promise.all([
@@ -238,6 +239,12 @@ export default function OrgStructurePage() {
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
     closeRef.current?.focus();
+    const d = dialogRef.current;
+    if (d) {
+      d.style.setProperty('background', '#FFFFFF', 'important');
+      d.style.setProperty('color', '#5E0B10', 'important');
+      d.style.setProperty('color-scheme', 'light');
+    }
     return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
   }, [selected, onKey]);
 
@@ -356,8 +363,8 @@ export default function OrgStructurePage() {
       {selected && (
         <div onClick={() => setSelected(null)} role="presentation"
           style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'grid', placeItems: 'center', padding: 16, background: 'rgba(94, 11, 16, 0.55)' }}>
-          <div role="dialog" aria-modal="true" aria-label={`${selected.full_name} profile`} onClick={(e) => e.stopPropagation()}
-            style={{ ...card, position: 'relative', width: '100%', maxWidth: 400, overflow: 'hidden', textAlign: 'center', boxShadow: '0 30px 60px rgba(94, 11, 16, 0.35)' }}>
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={`${selected.full_name} profile`} onClick={(e) => e.stopPropagation()}
+            style={{ ...card, backgroundColor: '#FFFFFF', position: 'relative', width: '100%', maxWidth: 400, overflow: 'hidden', textAlign: 'center', boxShadow: '0 30px 60px rgba(94, 11, 16, 0.35)' }}>
             <div style={{ height: 96, background: GRAD }} />
             <button ref={closeRef} type="button" onClick={() => setSelected(null)} aria-label="Close profile"
               style={{ position: 'absolute', top: 12, right: 12, width: 38, height: 38, borderRadius: '50%', border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: 24, lineHeight: 1 }}>
@@ -366,8 +373,8 @@ export default function OrgStructurePage() {
             <div style={{ marginTop: -56, display: 'flex', justifyContent: 'center' }}>
               <Avatar size={112} name={selected.full_name} src={selected.photo_url ? getImageUrl(selected.photo_url) : null} />
             </div>
-            <div style={{ padding: '14px 28px 28px' }}>
-              <h3 style={{ margin: 0, fontWeight: 800, fontSize: '1.35rem', letterSpacing: '-0.03em' }}>{selected.full_name}</h3>
+            <div style={{ padding: '14px 28px 28px', backgroundColor: '#FFFFFF' }}>
+              <h3 style={{ margin: 0, fontWeight: 800, fontSize: '1.35rem', letterSpacing: '-0.03em', color: C.ink }}>{selected.full_name}</h3>
               <p style={{ margin: '4px 0 0', color: C.red, fontWeight: 700 }}>{selected.position_subject || 'Position not listed'}</p>
               <dl style={{ margin: '20px 0 0', textAlign: 'left' }}>
                 {[
@@ -377,7 +384,7 @@ export default function OrgStructurePage() {
                 ].filter(Boolean).map(([k, v]) => (
                   <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '11px 0', borderTop: `1px solid ${C.line}` }}>
                     <dt style={{ fontSize: 13.5, color: C.muted }}>{k}</dt>
-                    <dd style={{ margin: 0, fontWeight: 700, fontSize: 14 }}>{v}</dd>
+                    <dd style={{ margin: 0, fontWeight: 700, fontSize: 14, color: C.ink }}>{v}</dd>
                   </div>
                 ))}
               </dl>
