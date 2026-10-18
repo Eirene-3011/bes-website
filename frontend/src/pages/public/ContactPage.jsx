@@ -341,6 +341,9 @@ export default function ContactPage() {
   const email = info?.email || '107957@deped.gov.ph';
   const hours = info?.office_hours || 'Monday–Friday, 8:00 AM–5:00 PM';
   const mapsSearch = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`Bacao Elementary School, ${address}`)}`;
+  const mapsEmbed = info?.google_maps_embed_link
+    || (info?.google_maps_link && info.google_maps_link.includes('/embed') ? info.google_maps_link : null)
+    || `https://www.google.com/maps?q=${encodeURIComponent(`Bacao Elementary School, ${address}`)}&output=embed`;
 
   const phoneLinks = String(mobile).split('/').map((x) => x.trim()).filter(Boolean)
     .map((n) => ({ text: n, href: `tel:${n.replace(/[^\d+]/g, '')}` }));
@@ -448,12 +451,10 @@ export default function ContactPage() {
             </Reveal>
 
             <Reveal delay={100} style={{ marginTop: 16 }}>
-              {info?.google_maps_link && (
-                <div style={{ ...card, overflow: 'hidden', marginBottom: 12 }}>
-                  <iframe src={info.google_maps_link} width="100%" height="240" style={{ border: 0, display: 'block' }}
-                    allowFullScreen loading="lazy" title="BES location map" referrerPolicy="no-referrer-when-downgrade" />
-                </div>
-              )}
+              <div style={{ ...card, overflow: 'hidden', marginBottom: 12, background: '#FBE3E3' }}>
+                <iframe src={mapsEmbed} width="100%" height={wide ? 280 : 240} style={{ border: 0, display: 'block' }}
+                  allowFullScreen loading="lazy" title="Bacao Elementary School location map" referrerPolicy="no-referrer-when-downgrade" />
+              </div>
               <a href={info?.google_maps_link || mapsSearch} target="_blank" rel="noopener noreferrer" className="bes-btn bes-btn-outline" style={{ width: '100%', boxSizing: 'border-box' }}>
                 <IconExternalLink size={16} /> Open in Google Maps
               </a>
