@@ -98,6 +98,38 @@ const CSS = `
 .bes-acc > div { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility .3s; }
 .bes-acc[data-open="true"] > div { visibility: visible; }
 
+.bes-hero-glow { position: absolute; inset: auto auto -72px -72px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.8), rgba(255,255,255,0) 68%); pointer-events: none; filter: blur(2px); }
+.bes-kicker { display: inline-flex; align-items: center; gap: 8px; color: var(--green-800, #A8161B); font-weight: 800; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; }
+.bes-kicker::before { content: ''; width: 28px; height: 2px; background: #E8B923; }
+.bes-form-card { position: relative; overflow: hidden; background: linear-gradient(145deg, #fff 0%, #fffdfa 72%, #fff7dc 100%); }
+.bes-form-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--green-950, #5E0B10), var(--green-800, #A8161B), #E8B923); }
+.bes-form-card::after { content: ''; position: absolute; width: 150px; height: 150px; right: -75px; bottom: -75px; border-radius: 50%; border: 1px solid rgba(232,185,35,.24); box-shadow: 0 0 0 18px rgba(232,185,35,.06), 0 0 0 36px rgba(232,185,35,.04); pointer-events: none; }
+.bes-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.bes-form-grid > .bes-form-full { grid-column: 1 / -1; }
+.bes-field-wrap { position: relative; }
+.bes-field-wrap:focus-within label { color: var(--green-800, #A8161B); }
+.bes-field-wrap .bes-field { background: rgba(255,255,255,.88); }
+.bes-field-wrap .bes-field::placeholder { color: #9b7f77; }
+.bes-field-meta { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; color: #6B4A44; font-size: .78rem; }
+.bes-form-footer { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-top: 4px; }
+.bes-private-note { display: flex; align-items: center; gap: 8px; color: #6B4A44; font-size: .8rem; line-height: 1.4; }
+.bes-private-note span { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #FBE3E3; color: var(--green-800, #A8161B); font-size: .75rem; font-weight: 800; }
+.bes-contact-card { background: linear-gradient(145deg, #fff 0%, #fff 62%, #fff4c7 100%); }
+.bes-contact-card .bes-contact-row { transition: background .2s ease, padding-left .2s ease; border-radius: 12px; }
+.bes-contact-card .bes-contact-row:hover { background: rgba(251,227,227,.45); padding-left: 8px; }
+.bes-contact-card .bes-contact-icon { box-shadow: 0 5px 12px rgba(94,11,16,.08); }
+.bes-trust-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+.bes-trust-item { padding: 13px 10px; border: 1px solid rgba(142, 18, 24, 0.14); border-radius: 12px; background: rgba(255,255,255,.62); text-align: center; }
+.bes-trust-item strong { display: block; color: var(--green-950, #5E0B10); font-size: .78rem; }
+.bes-trust-item span { display: block; margin-top: 3px; color: #6B4A44; font-size: .72rem; }
+.bes-success { background: linear-gradient(145deg, #fff 0%, #fff9df 100%); border: 1px solid rgba(232,185,35,.42); }
+@media (max-width: 620px) {
+  .bes-form-grid { grid-template-columns: 1fr; gap: 16px; }
+  .bes-form-grid > .bes-form-full { grid-column: auto; }
+  .bes-form-footer { align-items: stretch; flex-direction: column; }
+  .bes-trust-strip { grid-template-columns: 1fr; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bes-reveal { opacity: 1; transform: none; transition: none; }
   .bes-rise, .bes-ticket, .bes-blob, .bes-skel { animation: none; }
@@ -178,6 +210,7 @@ function Crumbs({ items }) {
 function Hero({ wide, above, eyebrow, title, subtitle, aside, extra }) {
   return (
     <header style={{ position: 'relative', overflow: 'hidden', ...paperBg }}>
+      <span aria-hidden="true" className="bes-hero-glow" />
       <span aria-hidden="true" className="bes-blob" style={{ top: -120, right: wide ? -60 : -140, width: 380, height: 380, background: 'radial-gradient(circle at 35% 35%, rgba(232,185,35,.5), rgba(232,185,35,0) 70%)' }} />
       <span aria-hidden="true" className="bes-blob" style={{ bottom: -160, left: wide ? '30%' : -120, width: 340, height: 340, background: 'radial-gradient(circle at 50% 50%, rgba(196,30,36,.16), rgba(196,30,36,0) 70%)', animationDelay: '-6s' }} />
       <span aria-hidden="true" style={{ position: 'absolute', top: 0, bottom: 0, left: wide ? 48 : 16, width: 5, boxSizing: 'border-box', borderLeft: `1px solid ${C.margin}`, borderRight: `1px solid ${C.margin}`, pointerEvents: 'none' }} />
@@ -340,7 +373,8 @@ export default function ContactPage() {
       <BesStyles />
       <Hero wide={wide} above={<Crumbs items={[{ label: 'Home', to: '/' }, { label: 'Contact Us' }]} />}
         eyebrow="Contact Us" title="We would love to hear from you."
-        subtitle="Reach out to Bacao Elementary School by phone, email, or the message form." aside={ticket} />
+        subtitle="Reach out to Bacao Elementary School by phone, email, or the message form."
+        extra={<><span className="bes-btn bes-btn-sm bes-btn-outline" style={{ pointerEvents: 'none', borderColor: 'rgba(94,11,16,.35)' }}>Friendly support</span><span className="bes-btn bes-btn-sm bes-btn-white" style={{ pointerEvents: 'none' }}>We are here to help</span></>} aside={ticket} />
 
       <main className="container" style={{ ...mainBox(wide), paddingTop: wide ? 44 : 28 }}>
         <div style={{ display: 'grid', gridTemplateColumns: wide ? 'minmax(0, 1fr) minmax(0, 1.2fr)' : 'minmax(0, 1fr)', gap: wide ? 44 : 36, alignItems: 'start' }}>
@@ -350,39 +384,43 @@ export default function ContactPage() {
             <Reveal delay={80}>
               <SectionHead title="Send us a message" note="We reply as soon as we can." />
               {sent ? (
-                <div role="status" style={{ ...card, padding: 'clamp(28px, 6vw, 48px)', textAlign: 'center' }}>
+                <div role="status" className="bes-success" style={{ ...card, padding: 'clamp(28px, 6vw, 48px)', textAlign: 'center' }}>
                   <span aria-hidden="true" style={{ display: 'inline-grid', placeItems: 'center', width: 60, height: 60, borderRadius: 16, background: `linear-gradient(135deg, ${C.tint}, #FFE3A3)`, color: C.red, marginBottom: 16 }}><IconSend size={26} /></span>
                   <p style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '1.3rem', letterSpacing: '-0.025em' }}>Message sent.</p>
                   <p style={{ margin: '0 auto 22px', maxWidth: '38ch', color: C.muted, lineHeight: 1.6 }}>Thank you. The school will reply as soon as possible.</p>
                   <button type="button" className="bes-btn bes-btn-outline bes-btn-sm" onClick={() => setSent(false)}>Send another message</button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} noValidate style={{ ...card, padding: 'clamp(22px, 4vw, 32px)', display: 'flex', flexDirection: 'column', gap: 20 }}>
-                  <div>
-                    <label htmlFor="contact-sender_name" style={labelStyle}>Full name</label>
-                    <input id="contact-sender_name" type="text" autoComplete="name" className="bes-field" placeholder="Juan Dela Cruz" value={form.sender_name} onChange={set('sender_name')}
-                      aria-required="true" aria-invalid={!!errors.sender_name} aria-describedby={errors.sender_name ? 'err-name' : undefined} />
-                    {errors.sender_name && <p id="err-name" role="alert" style={errStyle}>{errors.sender_name}</p>}
+                <form onSubmit={handleSubmit} noValidate className="bes-form-card" style={{ ...card, padding: 'clamp(22px, 4vw, 32px)', display: 'flex', flexDirection: 'column', gap: 20 }}>
+                  <div style={{ position: 'relative', zIndex: 1 }}>
+                    <p className="bes-kicker" style={{ margin: '0 0 8px' }}>Start a conversation</p>
+                    <p style={{ margin: 0, color: C.muted, fontSize: '.92rem', lineHeight: 1.55 }}>A few details will help us route your message to the right person.</p>
                   </div>
-                  <div>
-                    <label htmlFor="contact-sender_email" style={labelStyle}>Email <span style={hintStyle}>(optional, so we can reply)</span></label>
-                    <input id="contact-sender_email" type="email" autoComplete="email" className="bes-field" placeholder="name@email.com" value={form.sender_email} onChange={set('sender_email')}
-                      aria-invalid={!!errors.sender_email} aria-describedby={errors.sender_email ? 'err-email' : undefined} />
-                    {errors.sender_email && <p id="err-email" role="alert" style={errStyle}>{errors.sender_email}</p>}
+                  <div className="bes-form-grid" style={{ position: 'relative', zIndex: 1 }}>
+                    <div className="bes-field-wrap">
+                      <label htmlFor="contact-sender_name" style={labelStyle}>Full name <span style={{ color: C.red }}>*</span></label>
+                      <input id="contact-sender_name" type="text" autoComplete="name" className="bes-field" placeholder="Juan Dela Cruz" value={form.sender_name} onChange={set('sender_name')} aria-required="true" aria-invalid={!!errors.sender_name} aria-describedby={errors.sender_name ? 'err-name' : undefined} />
+                      {errors.sender_name && <p id="err-name" role="alert" style={errStyle}>{errors.sender_name}</p>}
+                    </div>
+                    <div className="bes-field-wrap">
+                      <label htmlFor="contact-sender_email" style={labelStyle}>Email <span style={hintStyle}>(optional)</span></label>
+                      <input id="contact-sender_email" type="email" autoComplete="email" className="bes-field" placeholder="name@email.com" value={form.sender_email} onChange={set('sender_email')} aria-invalid={!!errors.sender_email} aria-describedby={errors.sender_email ? 'err-email' : undefined} />
+                      {errors.sender_email && <p id="err-email" role="alert" style={errStyle}>{errors.sender_email}</p>}
+                    </div>
+                    <div className="bes-field-wrap bes-form-full">
+                      <label htmlFor="contact-subject" style={labelStyle}>Subject <span style={hintStyle}>(optional)</span></label>
+                      <input id="contact-subject" type="text" className="bes-field" placeholder="What is your message about?" value={form.subject} onChange={set('subject')} />
+                    </div>
+                    <div className="bes-field-wrap bes-form-full">
+                      <label htmlFor="contact-message" style={labelStyle}>Message <span style={{ color: C.red }}>*</span></label>
+                      <textarea id="contact-message" className="bes-field" rows="5" maxLength={1000} placeholder="Tell us how we can help…" value={form.message} onChange={set('message')} style={{ resize: 'vertical', minHeight: 142, lineHeight: 1.6 }} aria-required="true" aria-invalid={!!errors.message} aria-describedby={errors.message ? 'err-message' : 'message-count'} />
+                      <div className="bes-field-meta"><span>{errors.message ? <span style={{ color: C.danger }}>{errors.message}</span> : 'Please avoid sharing sensitive information.'}</span><span id="message-count">{form.message.length}/1000</span></div>
+                    </div>
                   </div>
-                  <div>
-                    <label htmlFor="contact-subject" style={labelStyle}>Subject <span style={hintStyle}>(optional)</span></label>
-                    <input id="contact-subject" type="text" className="bes-field" placeholder="What is your message about?" value={form.subject} onChange={set('subject')} />
+                  <div className="bes-form-footer" style={{ position: 'relative', zIndex: 1 }}>
+                    <p className="bes-private-note" style={{ margin: 0 }}><span aria-hidden="true">✓</span> Your message is sent securely to the school office.</p>
+                    <button type="submit" className="bes-btn bes-btn-primary" style={{ minWidth: 154 }} disabled={submitting}>{submitting ? 'Sending…' : (<><IconSend size={16} /> Send message</>)}</button>
                   </div>
-                  <div>
-                    <label htmlFor="contact-message" style={labelStyle}>Message</label>
-                    <textarea id="contact-message" className="bes-field" rows="5" placeholder="Type your message here…" value={form.message} onChange={set('message')} style={{ resize: 'vertical', minHeight: 130, lineHeight: 1.6 }}
-                      aria-required="true" aria-invalid={!!errors.message} aria-describedby={errors.message ? 'err-message' : undefined} />
-                    {errors.message && <p id="err-message" role="alert" style={errStyle}>{errors.message}</p>}
-                  </div>
-                  <button type="submit" className="bes-btn bes-btn-primary" style={{ width: '100%', padding: '14px 24px' }} disabled={submitting}>
-                    {submitting ? 'Sending…' : (<><IconSend size={16} /> Send message</>)}
-                  </button>
                 </form>
               )}
             </Reveal>
@@ -391,16 +429,21 @@ export default function ContactPage() {
           <section aria-label="School contact details" style={{ order: wide ? 1 : 2 }}>
             <Reveal>
               <SectionHead title="Get in touch" note="Visit, call or email the school office." />
-              <div style={{ ...card, padding: '6px 22px' }}>
+              <div className="bes-contact-card" style={{ ...card, padding: '6px 22px' }}>
                 {contactDetails.map((c, i) => (
-                  <div key={c.label} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '14px 0', borderTop: i ? `1px solid ${C.line}` : 'none' }}>
-                    <span aria-hidden="true" style={{ display: 'grid', placeItems: 'center', flex: 'none', width: 38, height: 38, borderRadius: 11, background: C.tint, color: C.red }}><c.Icon size={17} /></span>
+                  <div className="bes-contact-row" key={c.label} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '14px 0', borderTop: i ? `1px solid ${C.line}` : 'none' }}>
+                    <span aria-hidden="true" className="bes-contact-icon" style={{ display: 'grid', placeItems: 'center', flex: 'none', width: 38, height: 38, borderRadius: 11, background: C.tint, color: C.red }}><c.Icon size={17} /></span>
                     <div style={{ minWidth: 0 }}>
                       <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 600, color: C.muted }}>{c.label}</p>
                       <p style={{ margin: '1px 0 0', fontWeight: 700, fontSize: '0.95rem', lineHeight: 1.45, overflowWrap: 'anywhere' }}>{c.node}</p>
                     </div>
                   </div>
                 ))}
+              </div>
+              <div className="bes-trust-strip" aria-label="Contact benefits">
+                <div className="bes-trust-item"><strong>Helpful</strong><span>Real school support</span></div>
+                <div className="bes-trust-item"><strong>Direct</strong><span>No middleman</span></div>
+                <div className="bes-trust-item"><strong>Open</strong><span>Mon–Fri office hours</span></div>
               </div>
             </Reveal>
 
