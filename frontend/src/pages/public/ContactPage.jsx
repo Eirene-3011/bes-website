@@ -314,17 +314,17 @@ export default function ContactPage() {
 
   const contactDetails = [
     { Icon: IconPhone, label: 'Mobile', node: phoneLinks.map((n, i) => (
-      <React.Fragment key={n.href}>{i > 0 && <span aria-hidden="true"> / </span>}<a className="bes-textlink" href={n.href}>{n.text}</a></React.Fragment>
+      <React.Fragment key={n.href}>{i > 0 && <span aria-hidden="true"> / </span>}<a style={linkStyle} href={n.href}>{n.text}</a></React.Fragment>
     )) },
-    { Icon: IconMail, label: 'Email', node: <a className="bes-textlink" href={`mailto:${email}`}>{email}</a> },
+    { Icon: IconMail, label: 'Email', node: <a style={linkStyle} href={`mailto:${email}`}>{email}</a> },
     { Icon: IconClock, label: 'Office hours', node: hours },
     { Icon: IconMapPin, label: 'Address', node: address },
   ];
 
-  const labelStyle = { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, margin: '0 0 7px', fontSize: '0.88rem', fontWeight: 700 };
-  const hintStyle = { fontSize: '0.78rem', fontWeight: 600, color: C.muted };
+  const labelStyle = { display: 'block', margin: '0 0 7px', fontSize: '0.9rem', fontWeight: 700 };
+  const hintStyle = { fontWeight: 500, color: C.muted };
   const errStyle = { margin: '6px 0 0', fontSize: '0.84rem', fontWeight: 600, color: C.danger };
-  const row2 = { display: 'grid', gridTemplateColumns: wide ? 'minmax(0, 1fr) minmax(0, 1fr)' : 'minmax(0, 1fr)', gap: 18, marginBottom: 18 };
+  const linkStyle = { color: C.red, textDecoration: 'none' };
 
   const ticket = (
     <Ticket wide={wide} Icon={IconMessageSquare} ariaLabel="School contact at a glance"
@@ -342,47 +342,45 @@ export default function ContactPage() {
         eyebrow="Contact Us" title="We would love to hear from you."
         subtitle="Reach out to Bacao Elementary School by phone, email, or the message form." aside={ticket} />
 
-      <main className="container" style={{ ...mainBox(wide), paddingTop: wide ? 40 : 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: wide ? 'minmax(0, 1fr) minmax(0, 1.15fr)' : 'minmax(0, 1fr)', gap: wide ? 40 : 36, alignItems: 'start' }}>
+      <main className="container" style={{ ...mainBox(wide), paddingTop: wide ? 44 : 28 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: wide ? 'minmax(0, 1fr) minmax(0, 1.2fr)' : 'minmax(0, 1fr)', gap: wide ? 44 : 36, alignItems: 'start' }}>
 
           {/* Form first on phones: it is the main job of this page */}
           <section aria-label="Send a message" style={{ order: wide ? 2 : 1 }}>
             <Reveal delay={80}>
-              <SectionHead eyebrow="We reply as soon as we can" title="Send us a message" />
+              <SectionHead title="Send us a message" note="We reply as soon as we can." />
               {sent ? (
-                <div role="status" style={{ ...card, padding: 'clamp(28px, 6vw, 48px)', borderTop: `4px solid ${C.gold}`, textAlign: 'center' }}>
+                <div role="status" style={{ ...card, padding: 'clamp(28px, 6vw, 48px)', textAlign: 'center' }}>
                   <span aria-hidden="true" style={{ display: 'inline-grid', placeItems: 'center', width: 60, height: 60, borderRadius: 16, background: `linear-gradient(135deg, ${C.tint}, #FFE3A3)`, color: C.red, marginBottom: 16 }}><IconSend size={26} /></span>
                   <p style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '1.3rem', letterSpacing: '-0.025em' }}>Message sent.</p>
                   <p style={{ margin: '0 auto 22px', maxWidth: '38ch', color: C.muted, lineHeight: 1.6 }}>Thank you. The school will reply as soon as possible.</p>
                   <button type="button" className="bes-btn bes-btn-outline bes-btn-sm" onClick={() => setSent(false)}>Send another message</button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} noValidate style={{ ...card, padding: 'clamp(22px, 4vw, 34px)', borderTop: `4px solid ${C.gold}` }}>
-                  <div style={row2}>
-                    <div>
-                      <label htmlFor="contact-sender_name" style={labelStyle}>Full name <span style={hintStyle}>Required</span></label>
-                      <input id="contact-sender_name" type="text" autoComplete="name" className="bes-field" placeholder="Juan Dela Cruz" value={form.sender_name} onChange={set('sender_name')}
-                        aria-required="true" aria-invalid={!!errors.sender_name} aria-describedby={errors.sender_name ? 'err-name' : undefined} />
-                      {errors.sender_name && <p id="err-name" role="alert" style={errStyle}>{errors.sender_name}</p>}
-                    </div>
-                    <div>
-                      <label htmlFor="contact-sender_email" style={labelStyle}>Email address <span style={hintStyle}>So we can reply</span></label>
-                      <input id="contact-sender_email" type="email" autoComplete="email" className="bes-field" placeholder="name@email.com" value={form.sender_email} onChange={set('sender_email')}
-                        aria-invalid={!!errors.sender_email} aria-describedby={errors.sender_email ? 'err-email' : undefined} />
-                      {errors.sender_email && <p id="err-email" role="alert" style={errStyle}>{errors.sender_email}</p>}
-                    </div>
+                <form onSubmit={handleSubmit} noValidate style={{ ...card, padding: 'clamp(22px, 4vw, 32px)', display: 'flex', flexDirection: 'column', gap: 20 }}>
+                  <div>
+                    <label htmlFor="contact-sender_name" style={labelStyle}>Full name</label>
+                    <input id="contact-sender_name" type="text" autoComplete="name" className="bes-field" placeholder="Juan Dela Cruz" value={form.sender_name} onChange={set('sender_name')}
+                      aria-required="true" aria-invalid={!!errors.sender_name} aria-describedby={errors.sender_name ? 'err-name' : undefined} />
+                    {errors.sender_name && <p id="err-name" role="alert" style={errStyle}>{errors.sender_name}</p>}
                   </div>
-                  <div style={{ marginBottom: 18 }}>
-                    <label htmlFor="contact-subject" style={labelStyle}>Subject <span style={hintStyle}>Optional</span></label>
+                  <div>
+                    <label htmlFor="contact-sender_email" style={labelStyle}>Email <span style={hintStyle}>(optional, so we can reply)</span></label>
+                    <input id="contact-sender_email" type="email" autoComplete="email" className="bes-field" placeholder="name@email.com" value={form.sender_email} onChange={set('sender_email')}
+                      aria-invalid={!!errors.sender_email} aria-describedby={errors.sender_email ? 'err-email' : undefined} />
+                    {errors.sender_email && <p id="err-email" role="alert" style={errStyle}>{errors.sender_email}</p>}
+                  </div>
+                  <div>
+                    <label htmlFor="contact-subject" style={labelStyle}>Subject <span style={hintStyle}>(optional)</span></label>
                     <input id="contact-subject" type="text" className="bes-field" placeholder="What is your message about?" value={form.subject} onChange={set('subject')} />
                   </div>
-                  <div style={{ marginBottom: 24 }}>
-                    <label htmlFor="contact-message" style={labelStyle}>Message <span style={hintStyle}>Required</span></label>
-                    <textarea id="contact-message" className="bes-field" rows="6" placeholder="Type your message here…" value={form.message} onChange={set('message')} style={{ resize: 'vertical', minHeight: 140, lineHeight: 1.6 }}
+                  <div>
+                    <label htmlFor="contact-message" style={labelStyle}>Message</label>
+                    <textarea id="contact-message" className="bes-field" rows="5" placeholder="Type your message here…" value={form.message} onChange={set('message')} style={{ resize: 'vertical', minHeight: 130, lineHeight: 1.6 }}
                       aria-required="true" aria-invalid={!!errors.message} aria-describedby={errors.message ? 'err-message' : undefined} />
                     {errors.message && <p id="err-message" role="alert" style={errStyle}>{errors.message}</p>}
                   </div>
-                  <button type="submit" className="bes-btn bes-btn-primary" style={{ width: '100%', padding: '15px 24px' }} disabled={submitting}>
+                  <button type="submit" className="bes-btn bes-btn-primary" style={{ width: '100%', padding: '14px 24px' }} disabled={submitting}>
                     {submitting ? 'Sending…' : (<><IconSend size={16} /> Send message</>)}
                   </button>
                 </form>
@@ -392,43 +390,35 @@ export default function ContactPage() {
 
           <section aria-label="School contact details" style={{ order: wide ? 1 : 2 }}>
             <Reveal>
-              <SectionHead eyebrow="Visit or call" title="Get in touch" />
-              <div style={{ ...card, padding: '4px 22px' }}>
+              <SectionHead title="Get in touch" note="Visit, call or email the school office." />
+              <div style={{ ...card, padding: '6px 22px' }}>
                 {contactDetails.map((c, i) => (
-                  <div key={c.label} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '15px 0', borderTop: i ? `1px solid ${C.line}` : 'none' }}>
-                    <span aria-hidden="true" style={{ display: 'grid', placeItems: 'center', flex: 'none', width: 42, height: 42, borderRadius: 12, background: `linear-gradient(135deg, ${C.tint}, #FFE3A3)`, color: C.red }}><c.Icon size={18} /></span>
+                  <div key={c.label} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '14px 0', borderTop: i ? `1px solid ${C.line}` : 'none' }}>
+                    <span aria-hidden="true" style={{ display: 'grid', placeItems: 'center', flex: 'none', width: 38, height: 38, borderRadius: 11, background: C.tint, color: C.red }}><c.Icon size={17} /></span>
                     <div style={{ minWidth: 0 }}>
-                      <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700, color: C.muted }}>{c.label}</p>
-                      <p style={{ margin: '2px 0 0', fontWeight: 700, fontSize: '0.96rem', lineHeight: 1.45, overflowWrap: 'anywhere' }}>{c.node}</p>
+                      <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 600, color: C.muted }}>{c.label}</p>
+                      <p style={{ margin: '1px 0 0', fontWeight: 700, fontSize: '0.95rem', lineHeight: 1.45, overflowWrap: 'anywhere' }}>{c.node}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </Reveal>
 
-            <Reveal delay={100} style={{ marginTop: 20 }}>
-              <div style={{ ...card, overflow: 'hidden' }}>
-                {info?.google_maps_link ? (
-                  <iframe src={info.google_maps_link} width="100%" height="250" style={{ border: 0, display: 'block' }}
+            <Reveal delay={100} style={{ marginTop: 16 }}>
+              {info?.google_maps_link && (
+                <div style={{ ...card, overflow: 'hidden', marginBottom: 12 }}>
+                  <iframe src={info.google_maps_link} width="100%" height="240" style={{ border: 0, display: 'block' }}
                     allowFullScreen loading="lazy" title="BES location map" referrerPolicy="no-referrer-when-downgrade" />
-                ) : (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '22px 22px', background: C.paper }}>
-                    <span aria-hidden="true" style={{ display: 'grid', placeItems: 'center', flex: 'none', width: 48, height: 48, borderRadius: 14, background: '#fff', color: C.red, boxShadow: '0 4px 12px rgba(94,11,16,.12)' }}><IconMapPin size={22} /></span>
-                    <div style={{ minWidth: 0 }}>
-                      <p style={{ margin: 0, fontWeight: 800 }}>Find us on the map</p>
-                      <p style={{ margin: '3px 0 0', fontSize: '0.88rem', lineHeight: 1.5, color: C.muted }}>An embedded map is not set up yet. Open the address in Google Maps instead.</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <a href={info?.google_maps_link || mapsSearch} target="_blank" rel="noopener noreferrer" className="bes-btn bes-btn-outline" style={{ marginTop: 12, width: '100%', boxSizing: 'border-box' }}>
+                </div>
+              )}
+              <a href={info?.google_maps_link || mapsSearch} target="_blank" rel="noopener noreferrer" className="bes-btn bes-btn-outline" style={{ width: '100%', boxSizing: 'border-box' }}>
                 <IconExternalLink size={16} /> Open in Google Maps
               </a>
             </Reveal>
 
             {(csmLink?.url || feedbackLink?.url) && (
               <Reveal delay={150} style={{ marginTop: 36 }}>
-                <SectionHead eyebrow="Tell us how we did" title="Feedback and surveys" />
+                <SectionHead title="Feedback and surveys" note="Tell us how we did." />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {csmLink?.url && <a href={csmLink.url} target="_blank" rel="noopener noreferrer" className="bes-btn bes-btn-primary"><IconClipboard size={16} /> Client Satisfaction Survey (CSM)</a>}
                   {feedbackLink?.url && <a href={feedbackLink.url} target="_blank" rel="noopener noreferrer" className="bes-btn bes-btn-outline"><IconMessageSquare size={16} /> General Feedback Form</a>}
