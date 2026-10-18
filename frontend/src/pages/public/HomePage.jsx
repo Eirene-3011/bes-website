@@ -103,13 +103,15 @@ const FX = `
 /* PPAs: clean, even cards with restrained interaction. */
 .ppa-section .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 24px; }
 .ppa-section .ppa-card { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 100%; overflow: hidden; border-radius: 12px; color: #5E0B10; text-decoration: none; transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+.ppa-section .ppa-card-feature { grid-row: auto; }
 .ppa-section .ppa-card:hover { transform: translateY(-4px); border-color: rgba(168,22,27,.24); box-shadow: 0 14px 28px rgba(94,11,16,.12); }
 .ppa-section .ppa-image-wrap { position: relative; flex: none; aspect-ratio: 16 / 9; overflow: hidden; background: #FBE3E3; }
+.ppa-section .ppa-card-feature .ppa-image-wrap { height: auto; }
 .ppa-section .ppa-image { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .45s ease; }
 .ppa-section .ppa-card:hover .ppa-image { transform: scale(1.035); }
 .ppa-section .ppa-image-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(94,11,16,0) 48%, rgba(94,11,16,.28) 100%); pointer-events: none; }
-.ppa-section .ppa-image-tag { position: absolute; left: 14px; bottom: 13px; z-index: 1; box-shadow: 0 4px 10px rgba(94,11,16,.12); }
-.ppa-section .ppa-body { display: flex; flex: 1; flex-direction: column; align-items: flex-start; padding: 20px 20px 22px; background: #fff; }
+.ppa-section .ppa-image-tag { top: auto; position: absolute; left: 14px; bottom: 13px; z-index: 1; box-shadow: 0 4px 10px rgba(94,11,16,.12); }
+.ppa-section .ppa-body { display: flex; flex: 1; flex-direction: column; align-items: flex-start; gap: 0; padding: 20px 20px 22px; background: #fff; }
 .ppa-section .ppa-name { display: -webkit-box; margin: 0 0 8px; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: 1.05rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.3; }
 .ppa-section .ppa-body > p:not(.ppa-name) { display: -webkit-box; margin: 0; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-height: 1.55; }
 .ppa-section .ppa-link { display: inline-flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 16px; font-size: .84rem; font-weight: 800; }
