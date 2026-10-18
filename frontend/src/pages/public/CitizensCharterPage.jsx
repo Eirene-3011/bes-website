@@ -128,27 +128,6 @@ function Reveal({ children, delay = 0, style, ...rest }) {
   );
 }
 
-/* Counts up to a number; strings pass straight through */
-function CountUp({ value }) {
-  const isNum = typeof value === 'number';
-  const [n, setN] = useState(0);
-  useEffect(() => {
-    if (!isNum) return undefined;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce || value === 0) { setN(value); return undefined; }
-    let raf;
-    const t0 = performance.now();
-    const tick = (t) => {
-      const p = Math.min(1, (t - t0) / 900);
-      setN(Math.round(value * (1 - Math.pow(1 - p, 3))));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [value, isNum]);
-  return <>{isNum ? n.toLocaleString() : value}</>;
-}
-
 /* ─── Hero: legal pad, drifting light, margin line, wave edge ─── */
 function Hero({ wide, eyebrow, title, subtitle, aside, extra }) {
   return (
@@ -181,7 +160,7 @@ function Ticket({ wide, Icon, label, value, note, rows = [], ariaLabel }) {
         <span style={{ display: 'grid', placeItems: 'center', flex: 'none', width: 56, height: 56, borderRadius: 14, background: `linear-gradient(135deg, ${C.tint}, #FFE3A3)`, color: C.red }}><Icon size={26} /></span>
         <div style={{ minWidth: 0 }}>
           <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: C.muted }}>{label}</p>
-          <p style={{ margin: 0, fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.1 }}><CountUp value={value} /></p>
+          <p style={{ margin: 0, fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.1 }}>{value}</p>
           {note && <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: C.muted }}>{note}</p>}
         </div>
       </div>
@@ -217,32 +196,26 @@ function SectionHead({ Icon, num, eyebrow, title, note, right }) {
         <div style={{ minWidth: 0 }}>
           {eyebrow && <p style={{ margin: '0 0 4px', color: C.red, fontWeight: 700, fontSize: '0.9rem' }}>{eyebrow}</p>}
           <h2 style={{ margin: 0, color: C.ink, fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 1.1, fontSize: 'clamp(1.6rem, 3vw, 2.2rem)' }}>{title}</h2>
-          {note && <p style={{ margin: '6px 0 0', fontSize: '0.95rem', color: C.muted }}>{note}</p>}
+          {note && <p style={{ margin: '8px 0 0', color: C.muted, lineHeight: 1.5 }}>{note}</p>}
         </div>
       </div>
-      {right}
+      {right && <div style={{ alignSelf: 'center' }}>{right}</div>}
     </div>
   );
 }
 
+function Chip({ children }) {
+  return <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.45em 0.8em', borderRadius: 999, background: 'rgba(255,255,255,.7)', border: `1px solid ${C.line}`, color: C.ink, fontWeight: 700, fontSize: 13 }}>{children}</span>;
+}
 function EmptyState({ Icon, title, children }) {
   return (
-    <div className="bes-reveal in" style={{ ...card, boxShadow: 'none', border: `2px dashed ${C.line}`, padding: '44px 24px', textAlign: 'center' }}>
-      <span aria-hidden="true" style={{ display: 'inline-grid', placeItems: 'center', width: 56, height: 56, borderRadius: 16, background: `linear-gradient(135deg, ${C.tint}, #FFE3A3)`, color: C.red, marginBottom: 14 }}><Icon size={24} /></span>
-      {title && <p style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '1.1rem' }}>{title}</p>}
-      {children && <p style={{ margin: '0 auto', maxWidth: '44ch', color: C.muted, fontSize: '0.98rem', lineHeight: 1.6 }}>{children}</p>}
+    <div style={{ ...card, padding: '42px 24px', textAlign: 'center' }}>
+      <Icon size={34} />
+      <h3 style={{ margin: '14px 0 6px' }}>{title}</h3>
+      <p style={{ margin: 0, color: C.muted }}>{children}</p>
     </div>
   );
 }
-
-function Chip({ children, strong }) {
-  return (
-    <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 6, padding: '5px 13px', borderRadius: 999, background: C.cream, border: `1px solid ${C.line}`, fontSize: 13, fontWeight: 600, color: C.muted, whiteSpace: 'nowrap' }}>
-      {children}{strong && <strong style={{ color: C.ink }}>{strong}</strong>}
-    </span>
-  );
-}
-
 function FilterChip({ on, onClick, children, count }) {
   return (
     <button type="button" className="bes-filter" aria-pressed={on} onClick={onClick}>
@@ -251,7 +224,6 @@ function FilterChip({ on, onClick, children, count }) {
     </button>
   );
 }
-
 function SearchBox({ value, onChange, placeholder, label }) {
   return (
     <label className="bes-search" style={{ marginBottom: 18 }}>
@@ -261,7 +233,6 @@ function SearchBox({ value, onChange, placeholder, label }) {
     </label>
   );
 }
-
 function SkeletonGrid({ min = 280, count = 3, height = 300 }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${min}px, 1fr))`, gap: 22 }}>
@@ -269,7 +240,6 @@ function SkeletonGrid({ min = 280, count = 3, height = 300 }) {
     </div>
   );
 }
-
 function TabBar({ items, active, onSelect, label = 'Page sections' }) {
   return (
     <nav aria-label={label} style={{ position: 'sticky', top: 0, zIndex: 20, background: '#fff', borderBottom: `1px solid ${C.line}`, boxShadow: '0 6px 14px rgba(94, 11, 16, 0.06)' }}>
@@ -287,23 +257,18 @@ function TabBar({ items, active, onSelect, label = 'Page sections' }) {
     </nav>
   );
 }
-
-const TOTAL_DOCS = 16;
-
 export default function CitizensCharterPage() {
   const wide = useWide();
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState('All');
-
   useEffect(() => {
     api.get('/charter')
       .then((r) => setDocuments(Array.isArray(r.data) ? r.data : []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
-
   const [active, go] = useScrollSpy(['documents', 'legal'], !loading);
   const withPdf = documents.filter((d) => d.pdf_url).length;
   const needle = query.trim().toLowerCase();
@@ -312,32 +277,26 @@ export default function CitizensCharterPage() {
     if (filter === 'Coming soon' && d.pdf_url) return false;
     return !needle || `${d.title} ${d.description || ''}`.toLowerCase().includes(needle);
   });
-  const pct = Math.min(100, Math.round((documents.length / TOTAL_DOCS) * 100));
-
   const ticket = (
     <Ticket wide={wide} Icon={IconScroll} ariaLabel="Charter documents at a glance"
       label="Charter documents posted"
-      value={loading ? '…' : `${documents.length} of ${TOTAL_DOCS}`}
+      value={loading ? '…' : documents.length}
       note={!loading && documents.length > 0 ? `${withPdf} with a downloadable PDF` : undefined}
       rows={[
         { Icon: IconScale, label: 'Law', value: 'RA 11032' },
         { Icon: IconScale, label: 'Agency', value: 'ARTA' },
       ]} />
   );
-
   return (
     <div className="bes-page" style={pageShell(wide)}>
       <BesStyles />
       <Hero wide={wide} eyebrow="Citizen's Charter" title="Our service standards, in the open."
         subtitle="What each school service needs, how long it takes, and what it costs, as required by law." aside={ticket}
         extra={<><Chip>RA 11032</Chip><Chip>Anti-Red Tape Act</Chip></>} />
-
       <TabBar items={[{ id: 'documents', label: 'Documents' }, { id: 'legal', label: 'Legal basis' }]} active={active} onSelect={go} />
-
       <main className="container" style={mainBox(wide)}>
         <section id="documents" style={sectionPad(wide)}>
           <SectionHead Icon={IconScroll} title="Charter documents" />
-
           {loading ? (
             <SkeletonGrid min={280} count={6} height={160} />
           ) : documents.length === 0 ? (
@@ -346,25 +305,12 @@ export default function CitizensCharterPage() {
             </EmptyState>
           ) : (
             <>
-              <Reveal>
-                <div style={{ ...card, padding: wide ? '20px 26px' : '16px 18px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
-                  <div style={{ flex: '1 1 200px' }}>
-                    <p style={{ margin: 0, fontWeight: 800, fontSize: '1.02rem' }}>{documents.length} of {TOTAL_DOCS} documents posted</p>
-                    <p style={{ margin: '2px 0 0', fontSize: 13.5, color: C.muted }}>More are added as the school uploads them.</p>
-                  </div>
-                  <div role="progressbar" aria-valuemin={0} aria-valuemax={TOTAL_DOCS} aria-valuenow={documents.length} style={{ flex: '1 1 180px', height: 12, borderRadius: 6, background: '#F3EAE8', overflow: 'hidden' }}>
-                    <div style={{ width: `${pct}%`, height: '100%', background: GRAD, borderRadius: 6, transition: 'width 0.6s cubic-bezier(0.16, 1, 0.3, 1)' }} />
-                  </div>
-                </div>
-              </Reveal>
-
               {documents.length > 5 && <SearchBox value={query} onChange={setQuery} label="Search charter documents" placeholder="Search documents" />}
               <div role="group" aria-label="Filter documents" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 24 }}>
                 <FilterChip on={filter === 'All'} onClick={() => setFilter('All')} count={documents.length}>All</FilterChip>
                 <FilterChip on={filter === 'With PDF'} onClick={() => setFilter('With PDF')} count={withPdf}>With PDF</FilterChip>
                 <FilterChip on={filter === 'Coming soon'} onClick={() => setFilter('Coming soon')} count={documents.length - withPdf}>Coming soon</FilterChip>
               </div>
-
               {shown.length === 0 ? (
                 <EmptyState Icon={IconScroll} title="No documents match.">Try a shorter word, or choose another filter.</EmptyState>
               ) : (
@@ -391,7 +337,6 @@ export default function CitizensCharterPage() {
             </>
           )}
         </section>
-
         <section id="legal" style={sectionPad(wide)}>
           <Reveal>
             <SectionHead Icon={IconScale} title="Legal basis" />
