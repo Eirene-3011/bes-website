@@ -100,6 +100,27 @@ const FX = `
 .dash-section:nth-of-type(odd) .dash-card:hover { transform: translateY(-7px) rotate(.35deg); }
 .dash-nav-bar { position: sticky; top: 0; z-index: 30; transition: box-shadow .25s ease, background .25s ease; }
 .dash-nav-bar::after { content: ''; display: block; height: 3px; background: linear-gradient(90deg, #5E0B10, #A8161B 54%, #E8B923); opacity: .9; }
+/* PPAs: keep the existing content, but give every card one dependable rhythm. */
+.ppa-section .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 22px; }
+.ppa-section .ppa-card { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 100%; overflow: hidden; border-radius: 14px; color: #5E0B10; text-decoration: none; transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease, border-color .3s ease; }
+.ppa-section .ppa-card::after { content: ''; position: absolute; left: 18px; right: 18px; bottom: 0; height: 3px; border-radius: 3px 3px 0 0; background: linear-gradient(90deg, #A8161B, #E8B923); transform: scaleX(0); transform-origin: left; transition: transform .3s ease; }
+.ppa-section .ppa-card:hover { transform: translateY(-8px) rotate(-.35deg); border-color: rgba(168,22,27,.3); box-shadow: 0 20px 38px rgba(94,11,16,.15); }
+.ppa-section .ppa-card:nth-child(3n+2):hover { transform: translateY(-8px) rotate(.35deg); }
+.ppa-section .ppa-card:hover::after { transform: scaleX(1); }
+.ppa-section .ppa-card-feature { border-top: 5px solid #E8B923; }
+.ppa-section .ppa-image-wrap { position: relative; flex: none; aspect-ratio: 16 / 9; overflow: hidden; background: linear-gradient(135deg, #FBE3E3, #FFF4C7); }
+.ppa-section .ppa-image { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .65s cubic-bezier(.2,.7,.2,1), filter .35s ease; }
+.ppa-section .ppa-card:hover .ppa-image { transform: scale(1.055); filter: saturate(1.06); }
+.ppa-section .ppa-image-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(94,11,16,0) 42%, rgba(94,11,16,.38) 100%); pointer-events: none; }
+.ppa-section .ppa-image-tag { position: absolute; left: 14px; bottom: 13px; z-index: 1; box-shadow: 0 6px 14px rgba(94,11,16,.15); }
+.ppa-section .ppa-body { display: flex; flex: 1; flex-direction: column; align-items: flex-start; padding: 20px 20px 22px; background: #fff; }
+.ppa-section .ppa-name { display: -webkit-box; margin: 0 0 8px; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: 1.08rem; font-weight: 800; letter-spacing: -.025em; line-height: 1.25; }
+.ppa-section .ppa-body > p:not(.ppa-name) { display: -webkit-box; margin: 0; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-height: 1.55; }
+.ppa-section .ppa-link { display: inline-flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 18px; font-size: .84rem; font-weight: 800; }
+.ppa-section .ppa-link-icon { width: 15px; height: 15px; transition: transform .25s ease; }
+.ppa-section .ppa-card:hover .ppa-link-icon { transform: translateX(4px); }
+@media (max-width: 900px) { .ppa-section .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; } }
+@media (max-width: 600px) { .ppa-section .feature-grid { grid-template-columns: 1fr; gap: 16px; } .ppa-section .ppa-image-wrap { aspect-ratio: 16 / 10; } .ppa-section .ppa-body { padding: 18px 18px 20px; } }
 @media (max-width: 760px) {
   .hero-split::before { width: 420px; height: 420px; right: -220px; top: -130px; }
   .hero-split::after { left: 8%; width: 92%; height: 110px; bottom: -50px; }
@@ -1192,7 +1213,7 @@ export default function HomePage() {
 
       {/* ══ LATEST PPAs ══ */}
       {ppas.length > 0 && (
-        <section className="section" ref={ppaRef} style={secStyle(true)}>
+        <section className="section ppa-section" ref={ppaRef} style={secStyle(true)}>
           <div className="container">
             <SectionHeader num="10" eyebrow="Programs & activities" title="Latest PPAs"
               sub="Recent programs, projects, and activities."
