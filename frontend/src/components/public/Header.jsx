@@ -5,33 +5,32 @@ import api from '../../utils/api';
 import { getImageUrl } from '../../utils/helpers';
 import './Header.css';
 
-const HEADER_POLISH = `
-.site-header { position: relative; z-index: 40; }
-.site-header .utility-bar { position: relative; overflow: hidden; box-shadow: 0 2px 8px rgba(94,11,16,.12); }
-.site-header .utility-bar::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(105deg, transparent 20%, rgba(232,185,35,.16) 48%, transparent 72%); transform: translateX(-100%); animation: header-sheen 9s ease-in-out infinite; }
-@keyframes header-sheen { 0%, 62% { transform: translateX(-100%); } 78%, 100% { transform: translateX(100%); } }
-.site-header > section { box-shadow: 0 12px 28px rgba(94,11,16,.12); }
-.site-header > section::before { content: ''; position: absolute; z-index: 0; width: min(44vw, 620px); height: min(44vw, 620px); right: -12vw; top: -24vw; border-radius: 50%; background: radial-gradient(circle at 38% 42%, rgba(255,255,255,.6), rgba(255,255,255,0) 68%); pointer-events: none; }
-.site-header > section::after { content: ''; position: absolute; left: 9%; right: 9%; bottom: -18px; height: 30px; border-radius: 50%; background: rgba(94,11,16,.12); filter: blur(16px); pointer-events: none; }
-.site-header > section > div { z-index: 1; }
-.site-header h1 { text-shadow: 0 2px 0 rgba(255,255,255,.38) !important; }
-.site-header .nav-bar { box-shadow: 0 8px 20px rgba(94,11,16,.12); border-top: 3px solid #E8B923; }
-.site-header .nav-inner { min-height: 54px; }
-.site-header .nav-link { position: relative; transition: color .2s ease, background .2s ease, transform .2s ease; }
-.site-header .nav-link::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: 5px; height: 3px; border-radius: 3px; background: #E8B923; transform: scaleX(0); transform-origin: center; transition: transform .22s ease; }
-.site-header .nav-link:hover { transform: translateY(-1px); }
-.site-header .nav-link:hover::after, .site-header .nav-link.is-active::after { transform: scaleX(1); }
-.site-header .nav-dropdown { filter: drop-shadow(0 16px 26px rgba(94,11,16,.16)); }
-.site-header .dropdown-panel { border-top: 4px solid #E8B923; border-radius: 0 0 12px 12px; }
-.site-header .nav-drawer-brand { border-bottom-color: rgba(142,18,24,.16); }
-.site-header .stamp { transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease; }
-.site-header .stamp:hover { transform: rotate(-2deg) translateY(-4px) scale(1.04); box-shadow: 0 0 0 4px #FFF4C7, 0 0 0 6px var(--green-900), 0 16px 28px rgba(94,11,16,.3); }
-.site-header .polaroid { transition: transform .35s cubic-bezier(.2,.8,.2,1), filter .35s ease; }
-.site-header .polaroid:hover { filter: saturate(1.06); }
-@media (max-width: 940px) { .site-header > section::before { width: 360px; height: 360px; right: -170px; top: -150px; } .site-header .nav-bar { border-top-width: 2px; } }
-@media (prefers-reduced-motion: reduce) { .site-header .utility-bar::after { animation: none; } .site-header .nav-link, .site-header .nav-link::after, .site-header .stamp, .site-header .polaroid { transition: none; } }
-`;
-function HeaderPolish() { return <style>{HEADER_POLISH}</style>; }
+const ChevronDownIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
+const ArrowRightIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+);
+
+const SparkleIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+    <path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z" />
+  </svg>
+);
+
+const MenuIcon = ({ open }) => (
+  <span className={`menu-icon${open ? ' is-open' : ''}`} aria-hidden="true">
+    <span />
+    <span />
+    <span />
+  </span>
+);
 
 /* Navigation is unchanged: same items, same order, same dropdowns. */
 const NAV_ITEMS = [
@@ -435,7 +434,6 @@ export default function Header() {
 
   return (
     <>
-      <HeaderPolish />
       <header className={`site-header${scrolled ? ' has-scrolled' : ''}`}>
         <div className="utility-bar">
           <div className="header-container utility-inner">
