@@ -35,6 +35,72 @@ const CSS = `
 .bes-page :focus-visible { outline: 3px solid #E8B923; outline-offset: 2px; border-radius: 6px; }
 .bes-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
+/* entrance */
+.bes-reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s cubic-bezier(.2,.7,.2,1), transform .65s cubic-bezier(.2,.7,.2,1); }
+.bes-reveal.in { opacity: 1; transform: none; }
+.bes-rise { animation: bes-rise .75s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes bes-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes bes-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes bes-pop { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes bes-float { 0%,100% { transform: translateY(0) rotate(var(--rot, 0deg)); } 50% { transform: translateY(-8px) rotate(calc(var(--rot, 0deg) * .35)); } }
+@keyframes bes-drift { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-20px) scale(1.08); } }
+@keyframes bes-shimmer { to { background-position: -200% 0; } }
+@keyframes bes-word { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes bes-sheen { 0% { transform: translateX(-120%) skewX(-18deg); } 55%, 100% { transform: translateX(260%) skewX(-18deg); } }
+.bes-word { display: inline-block; animation: bes-word .65s cubic-bezier(.2,.7,.2,1) both; }
+.bes-row { animation: bes-word .6s cubic-bezier(.2,.7,.2,1) both; }
+.bes-sheen { position: absolute; top: 0; bottom: 0; left: 0; width: 38%; pointer-events: none; background: linear-gradient(100deg, rgba(255,255,255,0), rgba(255,255,255,.65), rgba(255,255,255,0)); animation: bes-sheen 5.5s ease-in-out 1.2s infinite; }
+.bes-ticket { animation: bes-float 7s ease-in-out infinite; transform: rotate(var(--rot, 0deg)); }
+.bes-blob { position: absolute; border-radius: 50%; pointer-events: none; animation: bes-drift 14s ease-in-out infinite; }
+
+/* cards (hover lift only on devices that can hover) */
+.bes-lift { transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease; }
+@media (hover: hover) {
+  .bes-lift:hover { transform: translateY(-6px); border-color: rgba(142,18,24,.3); box-shadow: 0 2px 4px rgba(94,11,16,.06), 0 22px 40px rgba(94,11,16,.16); }
+  .bes-lift:hover .bes-media img, .bes-zoom:hover img { transform: scale(1.06); }
+  .bes-lift:hover .bes-link { gap: 12px; }
+}
+.bes-media { position: relative; overflow: hidden; }
+.bes-media img, .bes-zoom img { transition: transform .7s cubic-bezier(.2,.7,.2,1); }
+.bes-zoom { position: relative; display: block; width: 100%; padding: 0; border: 0; background: none; overflow: hidden; cursor: zoom-in; }
+.bes-hint { opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease; }
+.bes-zoom:hover .bes-hint, .bes-zoom:focus-visible .bes-hint { opacity: 1; transform: none; }
+.bes-link { transition: gap .2s ease, color .2s ease; display: inline-flex; align-items: center; gap: 6px; }
+
+/* controls */
+.bes-filter { padding: 9px 18px; border-radius: 999px; cursor: pointer; font: inherit; font-weight: 700; font-size: 13.5px; color: var(--green-950, #5E0B10); background: #fff; border: 1px solid rgba(142,18,24,.14); display: inline-flex; align-items: center; gap: 8px; transition: background .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease; }
+.bes-filter:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(94,11,16,.12); }
+.bes-filter[aria-pressed="true"] { color: #fff; background: linear-gradient(100deg, #5E0B10, #A8161B); border-color: transparent; box-shadow: 0 8px 18px rgba(94,11,16,.28); }
+.bes-filter .bes-count { font-size: 11.5px; min-width: 20px; padding: 1px 7px; border-radius: 999px; background: rgba(142,18,24,.1); text-align: center; }
+.bes-filter[aria-pressed="true"] .bes-count { background: rgba(255,255,255,.22); }
+.bes-search { position: relative; display: flex; align-items: center; gap: 10px; padding: 0 12px 0 16px; background: #fff; border: 1px solid rgba(142,18,24,.18); border-radius: 12px; transition: border-color .2s ease, box-shadow .2s ease; }
+.bes-search:focus-within { border-color: #A8161B; box-shadow: 0 0 0 4px rgba(168,22,27,.12); }
+.bes-search input { border: none; outline: none; background: transparent; font: inherit; font-size: .95rem; padding: 13px 0; width: 100%; color: var(--green-950, #5E0B10); -webkit-appearance: none; appearance: none; }
+.bes-search input::-webkit-search-cancel-button { display: none; }
+.bes-clear { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(142,18,24,.1); color: var(--green-950, #5E0B10); font-size: 18px; line-height: 1; cursor: pointer; transition: background .2s ease; }
+.bes-clear:hover { background: rgba(142,18,24,.2); }
+.bes-field { width: 100%; box-sizing: border-box; padding: 13px 14px; border: 1px solid rgba(142,18,24,.18); border-radius: 12px; background: #fff; font: inherit; font-size: .95rem; color: var(--green-950, #5E0B10); transition: border-color .2s ease, box-shadow .2s ease; }
+.bes-field:focus { outline: none; border-color: #A8161B; box-shadow: 0 0 0 4px rgba(168,22,27,.12); }
+.bes-field[aria-invalid="true"] { border-color: #B3261E; box-shadow: 0 0 0 4px rgba(179,38,30,.1); }
+.bes-iconbtn { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; border: 1px solid rgba(142,18,24,.2); background: #fff; color: var(--green-950, #5E0B10); font: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; transition: background .2s ease, transform .2s ease; }
+.bes-iconbtn:hover { background: #FFF4C7; transform: translateY(-1px); }
+
+.bes-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 24px; border-radius: 12px; border: 2px solid transparent; font: inherit; font-weight: 800; font-size: .95rem; text-decoration: none; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease; }
+.bes-btn:hover { transform: translateY(-2px); }
+.bes-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+.bes-btn-primary { background: var(--green-800, #A8161B); color: #fff; box-shadow: 0 8px 18px rgba(94,11,16,.28); }
+.bes-btn-outline { background: transparent; color: var(--green-950, #5E0B10); border-color: var(--green-950, #5E0B10); }
+.bes-btn-outline:hover { background: var(--green-950, #5E0B10); color: #fff; }
+.bes-btn-white { background: #fff; color: var(--green-950, #5E0B10); box-shadow: 0 10px 22px rgba(0,0,0,.25); }
+.bes-btn-sm { padding: 9px 16px; font-size: .84rem; border-radius: 10px; }
+
+.bes-mark { background: linear-gradient(transparent 60%, rgba(232,185,35,.6) 60%, rgba(232,185,35,.6) 92%, transparent 92%); color: inherit; padding: 0 .08em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.bes-skel { background: linear-gradient(90deg, #f6e9c6 0%, #fff6d8 50%, #f6e9c6 100%); background-size: 200% 100%; animation: bes-shimmer 1.4s linear infinite; border-radius: 8px; }
+.bes-lb-btn { display: grid; place-items: center; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.14); color: #fff; cursor: pointer; backdrop-filter: blur(6px); transition: background .2s ease; }
+.bes-lb-btn:hover { background: rgba(255,255,255,.28); }
+.bes-textlink { color: inherit; text-decoration: underline; text-decoration-color: rgba(142,18,24,.35); text-underline-offset: 3px; transition: text-decoration-color .2s ease, color .2s ease; }
+.bes-textlink:hover { color: var(--green-800, #A8161B); text-decoration-color: currentColor; }
+
 /* accordion: height animates open/closed */
 .bes-acc { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease; }
 .bes-acc[data-open="true"] { grid-template-rows: 1fr; }
@@ -43,7 +109,7 @@ const CSS = `
 
 @media (prefers-reduced-motion: reduce) {
   .bes-reveal { opacity: 1; transform: none; transition: none; }
-  .bes-rise, .bes-ticket, .bes-blob, .bes-skel { animation: none; }
+  .bes-rise, .bes-ticket, .bes-blob, .bes-skel, .bes-word, .bes-row, .bes-sheen { animation: none; }
   .bes-lift, .bes-lift:hover, .bes-media img, .bes-zoom img, .bes-filter, .bes-btn, .bes-btn:hover, .bes-iconbtn, .bes-acc, .bes-acc > div { transition: none; transform: none; }
   .bes-lift:hover .bes-media img, .bes-zoom:hover img { transform: none; }
 }
@@ -141,16 +207,27 @@ function Hero({ wide, above, eyebrow, title, subtitle, aside, extra }) {
   );
 }
 
+/* Words rise in one after another (re-plays whenever the text changes) */
+function TextRise({ text }) {
+  return (
+    <span key={text}>
+      {String(text).split(' ').map((w, i) => (
+        <React.Fragment key={i}>{i > 0 && ' '}<span className="bes-word" style={{ animationDelay: `${i * 110}ms` }}>{w}</span></React.Fragment>
+      ))}
+    </span>
+  );
+}
+
 /* "Ticket" stat card: one headline fact + supporting rows */
 function Ticket({ wide, Icon, label, value, note, rows = [], ariaLabel }) {
   return (
     <aside aria-label={ariaLabel || label} className="bes-ticket" style={{ position: 'relative', ...card, '--rot': wide ? '1.2deg' : '0deg', borderRadius: 16, boxShadow: '0 28px 54px rgba(94, 11, 16, 0.22)' }}>
       <span aria-hidden="true" style={{ position: 'absolute', top: -11, right: 30, width: 68, height: 22, background: 'rgba(232,185,35,.8)', transform: 'rotate(4deg)', borderRadius: 3, boxShadow: '0 2px 6px rgba(94,11,16,.18)' }} />
       <div style={{ padding: '26px 28px 22px', display: 'flex', alignItems: 'center', gap: 16 }}>
-        <span style={{ display: 'grid', placeItems: 'center', flex: 'none', width: 56, height: 56, borderRadius: 14, background: `linear-gradient(135deg, ${C.tint}, #FFE3A3)`, color: C.red }}><Icon size={26} /></span>
+        <span style={{ display: 'grid', placeItems: 'center', flex: 'none', width: 56, height: 56, borderRadius: 14, background: `linear-gradient(135deg, ${C.tint}, #FFE3A3)`, color: C.red, position: 'relative', overflow: 'hidden' }}><Icon size={26} /><span aria-hidden="true" className="bes-sheen" /></span>
         <div style={{ minWidth: 0 }}>
           <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: C.muted }}>{label}</p>
-          <p style={{ margin: 0, fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.1 }}><CountUp value={value} /></p>
+          <p style={{ margin: 0, fontSize: 'clamp(1.7rem, 3.4vw, 2.4rem)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.1 }}>{typeof value === 'number' ? <CountUp value={value} /> : <TextRise text={value} />}</p>
           {note && <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: C.muted }}>{note}</p>}
         </div>
       </div>
@@ -162,7 +239,7 @@ function Ticket({ wide, Icon, label, value, note, rows = [], ariaLabel }) {
           </div>
           <dl style={{ margin: 0, padding: '8px 28px 18px' }}>
             {rows.map(({ Icon: RowIcon, label: l, value: v }, i) => (
-              <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderTop: i ? `1px solid ${C.line}` : 'none' }}>
+              <div key={l} className="bes-row" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderTop: i ? `1px solid ${C.line}` : 'none', animationDelay: `${350 + i * 140}ms` }}>
                 <span style={{ color: C.red, display: 'flex', width: 18, justifyContent: 'center' }}><RowIcon size={18} /></span>
                 <dt style={{ flex: 1, fontSize: '0.88rem', color: C.muted }}>{l}</dt>
                 <dd style={{ margin: 0, fontWeight: 700, fontSize: '0.92rem', textAlign: 'right', minWidth: 0, overflowWrap: 'anywhere' }}>{v}</dd>
@@ -213,6 +290,7 @@ function SkeletonGrid({ min = 280, count = 3, height = 300 }) {
     </div>
   );
 }
+
 
 export default function GuidancePage() {
   const wide = useWide();
