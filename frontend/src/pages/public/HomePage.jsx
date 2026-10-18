@@ -85,23 +85,32 @@ const FX = `
 .hp-chip { animation: hp-float 6s ease-in-out infinite; }
 .hp-ghost { position: absolute; top: -34px; right: 0; z-index: 0; pointer-events: none; user-select: none; font-weight: 800; letter-spacing: -0.06em; line-height: 1; font-size: clamp(5.5rem, 13vw, 10rem); color: transparent; -webkit-text-stroke: 1.5px rgba(142, 18, 24, 0.13); font-variant-numeric: tabular-nums; }
 .hp-active { color: #A8161B !important; box-shadow: inset 0 -3px 0 #A8161B; }
-.hp-hero-note { display: inline-flex; align-items: center; gap: 8px; margin-top: 24px; padding: 9px 13px; border: 1px solid rgba(142,18,24,.16); border-radius: 999px; background: rgba(255,255,255,.58); color: #6B4A44; font-size: .78rem; font-weight: 700; box-shadow: 0 8px 18px rgba(94,11,16,.06); backdrop-filter: blur(6px); }
-.hp-hero-note-dot { width: 8px; height: 8px; border-radius: 50%; background: #A8161B; box-shadow: 0 0 0 4px rgba(168,22,27,.12); }
-.hp-snapshot { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 28px; max-width: 620px; }
-.hp-snapshot-card { position: relative; overflow: hidden; min-height: 82px; padding: 14px 15px; border: 1px solid rgba(142,18,24,.15); border-radius: 12px; background: rgba(255,255,255,.7); box-shadow: 0 10px 22px rgba(94,11,16,.07); backdrop-filter: blur(7px); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
-.hp-snapshot-card::after { content: ''; position: absolute; width: 62px; height: 62px; right: -25px; bottom: -25px; border-radius: 50%; border: 1px solid rgba(232,185,35,.35); }
-.hp-snapshot-card:hover { transform: translateY(-4px); border-color: rgba(168,22,27,.3); box-shadow: 0 16px 28px rgba(94,11,16,.13); }
-.hp-snapshot-value { display: block; color: #5E0B10; font-size: 1.35rem; font-weight: 800; letter-spacing: -.04em; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.hp-snapshot-label { display: block; margin-top: 6px; color: #6B4A44; font-size: .72rem; font-weight: 700; }
-.hp-hero-ribbon { position: absolute; right: -34px; top: 25px; z-index: 4; padding: 8px 42px; transform: rotate(35deg); background: #E8B923; color: #5E0B10; box-shadow: 0 5px 12px rgba(94,11,16,.15); font-size: .72rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+.hero-split { isolation: isolate; }
+.hero-split::before { content: ''; position: absolute; z-index: -1; width: min(48vw, 700px); height: min(48vw, 700px); right: -12vw; top: -18vw; border-radius: 50%; background: radial-gradient(circle at 38% 40%, rgba(232,185,35,.56), rgba(232,185,35,.16) 48%, rgba(232,185,35,0) 72%); pointer-events: none; }
+.hero-split::after { content: ''; position: absolute; z-index: -1; width: min(54vw, 760px); height: min(20vw, 260px); left: 31%; bottom: -12%; border-radius: 50%; background: rgba(196,30,36,.08); transform: rotate(-8deg); filter: blur(2px); pointer-events: none; }
+.hero-panel { position: relative; }
+.hero-panel::after { content: ''; position: absolute; left: 12%; bottom: -32px; width: 190px; height: 18px; border-top: 4px solid rgba(168,22,27,.25); border-radius: 50%; transform: rotate(-5deg); pointer-events: none; }
+.hero-headline { position: relative; }
+.hero-headline::before { content: ''; position: absolute; left: -24px; top: -26px; width: 76px; height: 76px; border: 2px dashed rgba(168,22,27,.24); border-radius: 50%; transform: rotate(18deg); pointer-events: none; }
+.hero-media { isolation: isolate; }
+.hero-media::before { content: ''; position: absolute; z-index: -1; inset: 12px -18px -18px 18px; border-radius: 18px; background: #E8B923; transform: rotate(-4deg); opacity: .72; }
+.hero-media::after { content: ''; position: absolute; z-index: -1; inset: -18px 18px 18px -18px; border-radius: 18px; border: 2px solid rgba(168,22,27,.18); transform: rotate(4deg); pointer-events: none; }
+.dash-card, .rate-card, .kpi-card { transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, border-color .28s ease; }
+.dash-card:hover, .rate-card:hover, .kpi-card:hover { transform: translateY(-7px) rotate(-.35deg); border-color: rgba(168,22,27,.28); box-shadow: 0 18px 34px rgba(94,11,16,.14); }
+.dash-section:nth-of-type(odd) .dash-card:hover { transform: translateY(-7px) rotate(.35deg); }
 .dash-nav-bar { position: sticky; top: 0; z-index: 30; transition: box-shadow .25s ease, background .25s ease; }
 .dash-nav-bar::after { content: ''; display: block; height: 3px; background: linear-gradient(90deg, #5E0B10, #A8161B 54%, #E8B923); opacity: .9; }
-.dash-card, .rate-card, .kpi-card { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
-.dash-card:hover, .rate-card:hover, .kpi-card:hover { transform: translateY(-4px); border-color: rgba(168,22,27,.25); box-shadow: 0 14px 28px rgba(94,11,16,.12); }
-@media (max-width: 700px) { .hp-snapshot { grid-template-columns: 1fr; max-width: none; } .hp-hero-note { margin-top: 18px; } }
+@media (max-width: 760px) {
+  .hero-split::before { width: 420px; height: 420px; right: -220px; top: -130px; }
+  .hero-split::after { left: 8%; width: 92%; height: 110px; bottom: -50px; }
+  .hero-panel::after, .hero-headline::before { display: none; }
+  .hero-media::before { inset: 10px -8px -10px 8px; }
+  .hero-media::after { inset: -10px 8px 10px -8px; }
+}
 @media (max-width: 760px) { .hp-ghost { display: none; } }
 @media (prefers-reduced-motion: reduce) {
   .hp-letter, .hp-underline, .hp-blob, .hp-chip { animation: none; }
+  .dash-card, .rate-card, .kpi-card, .hero-media::before, .hero-media::after { transition: none; transform: none; }
 }
 `;
 function HomeFx() { return <style>{FX}</style>; }
@@ -807,12 +816,6 @@ export default function HomePage() {
             </Link>
             <button type="button" className="btn btn-outline-light" onClick={() => scrollTo('overview')}
               style={{ background: 'transparent', color: C.ink, border: `2px solid ${CH.deep}` }}>View Dashboard</button>
-          </div>
-          <div className="hp-hero-note" style={enter(4)}><span className="hp-hero-note-dot" aria-hidden="true" /> A welcoming place to learn, grow, and belong</div>
-          <div className="hp-snapshot" style={enter(5)} aria-label="School snapshot">
-            <div className="hp-snapshot-card"><span className="hp-snapshot-value">{Number(s.enrollment_count) > 0 ? Number(s.enrollment_count).toLocaleString() : '—'}</span><span className="hp-snapshot-label">Learners enrolled</span></div>
-            <div className="hp-snapshot-card"><span className="hp-snapshot-value">{computed.totalSections || '—'}</span><span className="hp-snapshot-label">Active sections</span></div>
-            <div className="hp-snapshot-card"><span className="hp-snapshot-value">{s.active_school_year ? `SY ${s.active_school_year}` : 'Current'}</span><span className="hp-snapshot-label">School year</span></div>
           </div>
         </div>
 
