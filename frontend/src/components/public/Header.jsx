@@ -5,25 +5,6 @@ import api from '../../utils/api';
 import { getImageUrl } from '../../utils/helpers';
 import './Header.css';
 
-const HEADER_FX = `
-.site-header .utility-bar { position: relative; overflow: hidden; }
-.site-header .utility-bar::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, transparent, rgba(232,185,35,.12), transparent); transform: translateX(-100%); animation: header-sheen 9s ease-in-out infinite; }
-@keyframes header-sheen { 0%, 62% { transform: translateX(-100%); } 78%, 100% { transform: translateX(100%); } }
-.masthead-trust-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 14px; color: #6B4A44; font-size: .76rem; font-weight: 700; }
-.masthead-trust-item { display: inline-flex; align-items: center; gap: 7px; padding: 6px 10px; border: 1px solid rgba(142,18,24,.14); border-radius: 999px; background: rgba(255,255,255,.5); box-shadow: 0 5px 12px rgba(94,11,16,.04); }
-.masthead-trust-mark { width: 7px; height: 7px; border-radius: 50%; background: #A8161B; box-shadow: 0 0 0 4px rgba(168,22,27,.1); }
-.masthead-trust-mark.gold { background: #E8B923; box-shadow: 0 0 0 4px rgba(232,185,35,.15); }
-.nav-link { transition: color .2s ease, background .2s ease, transform .2s ease; }
-.nav-link:hover { transform: translateY(-1px); }
-.nav-cta { display: inline-flex; align-items: center; gap: 7px; margin-left: 10px; padding: 10px 14px; border-radius: 10px; background: linear-gradient(135deg, #5E0B10, #A8161B); color: #fff; box-shadow: 0 8px 16px rgba(94,11,16,.2); font-size: .8rem; font-weight: 800; text-decoration: none; white-space: nowrap; transition: transform .2s ease, box-shadow .2s ease; }
-.nav-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 22px rgba(94,11,16,.28); }
-.nav-cta svg { width: 15px; height: 15px; }
-.identity-glow { position: absolute; width: 260px; height: 260px; right: 15%; top: -150px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.72), rgba(255,255,255,0) 70%); pointer-events: none; }
-@media (max-width: 940px) { .nav-cta { display: none; } }
-@media (prefers-reduced-motion: reduce) { .site-header .utility-bar::after { animation: none; } .nav-link, .nav-cta { transition: none; } }
-`;
-function HeaderFx() { return <style>{HEADER_FX}</style>; }
-
 const ChevronDownIcon = (props) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
     <polyline points="6 9 12 15 18 9" />
@@ -453,7 +434,6 @@ export default function Header() {
 
   return (
     <>
-      <HeaderFx />
       <header className={`site-header${scrolled ? ' has-scrolled' : ''}`}>
         <div className="utility-bar">
           <div className="header-container utility-inner">
@@ -490,17 +470,12 @@ export default function Header() {
                 </div>
               </div>
 
-              <span aria-hidden="true" className="identity-glow" />
               {(showPill || !S.desk) && (
                 <div style={S.noteRow}>
                   {showPill && <span style={S.pill}><SparkleIcon style={{ width: 14, height: 14, flex: 'none' }} /> {banner.title}</span>}
                   {!S.desk && <span style={S.recog}><span style={S.diamond} /> DepEd Recognized</span>}
                 </div>
               )}
-              <div className="masthead-trust-row" aria-label="School highlights">
-                <span className="masthead-trust-item"><span className="masthead-trust-mark" /> Official school website</span>
-                <span className="masthead-trust-item"><span className="masthead-trust-mark gold" /> Community first</span>
-              </div>
             </div>
 
             {S.desk && (
@@ -553,7 +528,6 @@ export default function Header() {
                 ))}
               </div>
             </div>
-            <Link to="/admissions" className="nav-cta"><span>Enroll now</span><ArrowRightIcon /></Link>
             <button type="button" className={`menu-button${menuOpen ? ' is-active' : ''}`} onClick={() => setMenuOpen((current) => !current)} aria-label="Toggle navigation menu" aria-expanded={menuOpen}>
               <MenuIcon open={menuOpen} /><span className="menu-button-text">Menu</span>
             </button>
