@@ -85,6 +85,20 @@ const FX = `
 .hp-chip { animation: hp-float 6s ease-in-out infinite; }
 .hp-ghost { position: absolute; top: -34px; right: 0; z-index: 0; pointer-events: none; user-select: none; font-weight: 800; letter-spacing: -0.06em; line-height: 1; font-size: clamp(5.5rem, 13vw, 10rem); color: transparent; -webkit-text-stroke: 1.5px rgba(142, 18, 24, 0.13); font-variant-numeric: tabular-nums; }
 .hp-active { color: #A8161B !important; box-shadow: inset 0 -3px 0 #A8161B; }
+.hp-hero-note { display: inline-flex; align-items: center; gap: 8px; margin-top: 24px; padding: 9px 13px; border: 1px solid rgba(142,18,24,.16); border-radius: 999px; background: rgba(255,255,255,.58); color: #6B4A44; font-size: .78rem; font-weight: 700; box-shadow: 0 8px 18px rgba(94,11,16,.06); backdrop-filter: blur(6px); }
+.hp-hero-note-dot { width: 8px; height: 8px; border-radius: 50%; background: #A8161B; box-shadow: 0 0 0 4px rgba(168,22,27,.12); }
+.hp-snapshot { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 28px; max-width: 620px; }
+.hp-snapshot-card { position: relative; overflow: hidden; min-height: 82px; padding: 14px 15px; border: 1px solid rgba(142,18,24,.15); border-radius: 12px; background: rgba(255,255,255,.7); box-shadow: 0 10px 22px rgba(94,11,16,.07); backdrop-filter: blur(7px); transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+.hp-snapshot-card::after { content: ''; position: absolute; width: 62px; height: 62px; right: -25px; bottom: -25px; border-radius: 50%; border: 1px solid rgba(232,185,35,.35); }
+.hp-snapshot-card:hover { transform: translateY(-4px); border-color: rgba(168,22,27,.3); box-shadow: 0 16px 28px rgba(94,11,16,.13); }
+.hp-snapshot-value { display: block; color: #5E0B10; font-size: 1.35rem; font-weight: 800; letter-spacing: -.04em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.hp-snapshot-label { display: block; margin-top: 6px; color: #6B4A44; font-size: .72rem; font-weight: 700; }
+.hp-hero-ribbon { position: absolute; right: -34px; top: 25px; z-index: 4; padding: 8px 42px; transform: rotate(35deg); background: #E8B923; color: #5E0B10; box-shadow: 0 5px 12px rgba(94,11,16,.15); font-size: .72rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+.dash-nav-bar { position: sticky; top: 0; z-index: 30; transition: box-shadow .25s ease, background .25s ease; }
+.dash-nav-bar::after { content: ''; display: block; height: 3px; background: linear-gradient(90deg, #5E0B10, #A8161B 54%, #E8B923); opacity: .9; }
+.dash-card, .rate-card, .kpi-card { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+.dash-card:hover, .rate-card:hover, .kpi-card:hover { transform: translateY(-4px); border-color: rgba(168,22,27,.25); box-shadow: 0 14px 28px rgba(94,11,16,.12); }
+@media (max-width: 700px) { .hp-snapshot { grid-template-columns: 1fr; max-width: none; } .hp-hero-note { margin-top: 18px; } }
 @media (max-width: 760px) { .hp-ghost { display: none; } }
 @media (prefers-reduced-motion: reduce) {
   .hp-letter, .hp-underline, .hp-blob, .hp-chip { animation: none; }
@@ -794,6 +808,12 @@ export default function HomePage() {
             <button type="button" className="btn btn-outline-light" onClick={() => scrollTo('overview')}
               style={{ background: 'transparent', color: C.ink, border: `2px solid ${CH.deep}` }}>View Dashboard</button>
           </div>
+          <div className="hp-hero-note" style={enter(4)}><span className="hp-hero-note-dot" aria-hidden="true" /> A welcoming place to learn, grow, and belong</div>
+          <div className="hp-snapshot" style={enter(5)} aria-label="School snapshot">
+            <div className="hp-snapshot-card"><span className="hp-snapshot-value">{Number(s.enrollment_count) > 0 ? Number(s.enrollment_count).toLocaleString() : '—'}</span><span className="hp-snapshot-label">Learners enrolled</span></div>
+            <div className="hp-snapshot-card"><span className="hp-snapshot-value">{computed.totalSections || '—'}</span><span className="hp-snapshot-label">Active sections</span></div>
+            <div className="hp-snapshot-card"><span className="hp-snapshot-value">{s.active_school_year ? `SY ${s.active_school_year}` : 'Current'}</span><span className="hp-snapshot-label">School year</span></div>
+          </div>
         </div>
 
         <div className="hero-media" ref={mediaRef} style={{ ...mediaBase,
@@ -833,6 +853,8 @@ export default function HomePage() {
           ) : (
             <div className="hero-fallback-media"><div className="hero-fallback-pattern" /></div>
           )}
+
+          <span className="hp-hero-ribbon" aria-hidden="true">BES • {s.active_school_year || 'School Year'}</span>
 
           {/* Live learners chip, pinned like a sticker on the photo */}
           {isDesk && Number(s.enrollment_count) > 0 && (
