@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 import { toast } from 'react-toastify';
 import { useSchoolInfo } from '../../hooks/useSchoolInfo';
-import { IconMapPin, IconPhone, IconMail, IconClock, IconClipboard, IconMessageSquare, IconSend } from '../../components/Icons';
+import { IconMapPin, IconPhone, IconMail, IconClock, IconClipboard, IconMessageSquare, IconSend, IconExternalLink } from '../../components/Icons';
 
 /* ═══ Shared page kit (same look as PPAsPage; kept in this file) ═══ */
 const C = {
@@ -30,6 +30,67 @@ const pageShell = (wide) => ({ background: C.cream, color: C.ink, minHeight: '60
 const CSS = `
 .bes-page :focus-visible { outline: 3px solid #E8B923; outline-offset: 2px; border-radius: 6px; }
 .bes-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* entrance */
+.bes-reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s cubic-bezier(.2,.7,.2,1), transform .65s cubic-bezier(.2,.7,.2,1); }
+.bes-reveal.in { opacity: 1; transform: none; }
+.bes-rise { animation: bes-rise .75s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes bes-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes bes-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes bes-pop { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes bes-float { 0%,100% { transform: translateY(0) rotate(var(--rot, 0deg)); } 50% { transform: translateY(-8px) rotate(calc(var(--rot, 0deg) * .35)); } }
+@keyframes bes-drift { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-20px) scale(1.08); } }
+@keyframes bes-shimmer { to { background-position: -200% 0; } }
+.bes-ticket { animation: bes-float 7s ease-in-out infinite; transform: rotate(var(--rot, 0deg)); }
+.bes-blob { position: absolute; border-radius: 50%; pointer-events: none; animation: bes-drift 14s ease-in-out infinite; }
+
+/* cards (hover lift only on devices that can hover) */
+.bes-lift { transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease; }
+@media (hover: hover) {
+  .bes-lift:hover { transform: translateY(-6px); border-color: rgba(142,18,24,.3); box-shadow: 0 2px 4px rgba(94,11,16,.06), 0 22px 40px rgba(94,11,16,.16); }
+  .bes-lift:hover .bes-media img, .bes-zoom:hover img { transform: scale(1.06); }
+  .bes-lift:hover .bes-link { gap: 12px; }
+}
+.bes-media { position: relative; overflow: hidden; }
+.bes-media img, .bes-zoom img { transition: transform .7s cubic-bezier(.2,.7,.2,1); }
+.bes-zoom { position: relative; display: block; width: 100%; padding: 0; border: 0; background: none; overflow: hidden; cursor: zoom-in; }
+.bes-hint { opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease; }
+.bes-zoom:hover .bes-hint, .bes-zoom:focus-visible .bes-hint { opacity: 1; transform: none; }
+.bes-link { transition: gap .2s ease, color .2s ease; display: inline-flex; align-items: center; gap: 6px; }
+
+/* controls */
+.bes-filter { padding: 9px 18px; border-radius: 999px; cursor: pointer; font: inherit; font-weight: 700; font-size: 13.5px; color: var(--green-950, #5E0B10); background: #fff; border: 1px solid rgba(142,18,24,.14); display: inline-flex; align-items: center; gap: 8px; transition: background .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease; }
+.bes-filter:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(94,11,16,.12); }
+.bes-filter[aria-pressed="true"] { color: #fff; background: linear-gradient(100deg, #5E0B10, #A8161B); border-color: transparent; box-shadow: 0 8px 18px rgba(94,11,16,.28); }
+.bes-filter .bes-count { font-size: 11.5px; min-width: 20px; padding: 1px 7px; border-radius: 999px; background: rgba(142,18,24,.1); text-align: center; }
+.bes-filter[aria-pressed="true"] .bes-count { background: rgba(255,255,255,.22); }
+.bes-search { position: relative; display: flex; align-items: center; gap: 10px; padding: 0 12px 0 16px; background: #fff; border: 1px solid rgba(142,18,24,.18); border-radius: 12px; transition: border-color .2s ease, box-shadow .2s ease; }
+.bes-search:focus-within { border-color: #A8161B; box-shadow: 0 0 0 4px rgba(168,22,27,.12); }
+.bes-search input { border: none; outline: none; background: transparent; font: inherit; font-size: .95rem; padding: 13px 0; width: 100%; color: var(--green-950, #5E0B10); -webkit-appearance: none; appearance: none; }
+.bes-search input::-webkit-search-cancel-button { display: none; }
+.bes-clear { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(142,18,24,.1); color: var(--green-950, #5E0B10); font-size: 18px; line-height: 1; cursor: pointer; transition: background .2s ease; }
+.bes-clear:hover { background: rgba(142,18,24,.2); }
+.bes-field { width: 100%; box-sizing: border-box; padding: 13px 14px; border: 1px solid rgba(142,18,24,.18); border-radius: 12px; background: #fff; font: inherit; font-size: .95rem; color: var(--green-950, #5E0B10); transition: border-color .2s ease, box-shadow .2s ease; }
+.bes-field:focus { outline: none; border-color: #A8161B; box-shadow: 0 0 0 4px rgba(168,22,27,.12); }
+.bes-field[aria-invalid="true"] { border-color: #B3261E; box-shadow: 0 0 0 4px rgba(179,38,30,.1); }
+.bes-iconbtn { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; border: 1px solid rgba(142,18,24,.2); background: #fff; color: var(--green-950, #5E0B10); font: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; transition: background .2s ease, transform .2s ease; }
+.bes-iconbtn:hover { background: #FFF4C7; transform: translateY(-1px); }
+
+.bes-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 24px; border-radius: 12px; border: 2px solid transparent; font: inherit; font-weight: 800; font-size: .95rem; text-decoration: none; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease; }
+.bes-btn:hover { transform: translateY(-2px); }
+.bes-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+.bes-btn-primary { background: var(--green-800, #A8161B); color: #fff; box-shadow: 0 8px 18px rgba(94,11,16,.28); }
+.bes-btn-outline { background: transparent; color: var(--green-950, #5E0B10); border-color: var(--green-950, #5E0B10); }
+.bes-btn-outline:hover { background: var(--green-950, #5E0B10); color: #fff; }
+.bes-btn-white { background: #fff; color: var(--green-950, #5E0B10); box-shadow: 0 10px 22px rgba(0,0,0,.25); }
+.bes-btn-sm { padding: 9px 16px; font-size: .84rem; border-radius: 10px; }
+
+.bes-mark { background: linear-gradient(transparent 60%, rgba(232,185,35,.6) 60%, rgba(232,185,35,.6) 92%, transparent 92%); color: inherit; padding: 0 .08em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.bes-skel { background: linear-gradient(90deg, #f6e9c6 0%, #fff6d8 50%, #f6e9c6 100%); background-size: 200% 100%; animation: bes-shimmer 1.4s linear infinite; border-radius: 8px; }
+.bes-lb-btn { display: grid; place-items: center; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.14); color: #fff; cursor: pointer; backdrop-filter: blur(6px); transition: background .2s ease; }
+.bes-lb-btn:hover { background: rgba(255,255,255,.28); }
+.bes-textlink { color: inherit; text-decoration: underline; text-decoration-color: rgba(142,18,24,.35); text-underline-offset: 3px; transition: text-decoration-color .2s ease, color .2s ease; }
+.bes-textlink:hover { color: var(--green-800, #A8161B); text-decoration-color: currentColor; }
 
 /* accordion: height animates open/closed */
 .bes-acc { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease; }
@@ -191,6 +252,7 @@ function SectionHead({ Icon, num, eyebrow, title, note, right, level = 2 }) {
   );
 }
 
+
 const EMPTY = { sender_name: '', sender_email: '', subject: '', message: '' };
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -213,11 +275,9 @@ export default function ContactPage() {
     if (form.sender_email && !EMAIL_RE.test(form.sender_email.trim())) e.sender_email = 'Enter an email like name@example.com, or leave it blank.';
     if (!form.message.trim()) e.message = 'Write a short message so the school knows how to help.';
     setErrors(e);
-    if (Object.keys(e).length) {
-      const first = ['sender_name', 'sender_email', 'message'].find((k) => e[k]);
-      document.getElementById(`contact-${first}`)?.focus();
-    }
-    return Object.keys(e).length === 0;
+    const first = ['sender_name', 'sender_email', 'message'].find((k) => e[k]);
+    if (first) document.getElementById(`contact-${first}`)?.focus();
+    return !first;
   };
 
   const handleSubmit = async (ev) => {
@@ -247,24 +307,24 @@ export default function ContactPage() {
   const mobile = info?.mobile || '(046) 230 3506 / 0966-486-1467';
   const email = info?.email || '107957@deped.gov.ph';
   const hours = info?.office_hours || 'Monday–Friday, 8:00 AM–5:00 PM';
+  const mapsSearch = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`Bacao Elementary School, ${address}`)}`;
 
-  const phoneLinks = String(mobile).split('/').map((s) => s.trim()).filter(Boolean)
-    .map((p) => ({ text: p, href: `tel:${p.replace(/[^\d+]/g, '')}` }));
+  const phoneLinks = String(mobile).split('/').map((x) => x.trim()).filter(Boolean)
+    .map((n) => ({ text: n, href: `tel:${n.replace(/[^\d+]/g, '')}` }));
 
   const contactDetails = [
-    { Icon: IconMapPin, label: 'Address', node: address },
-    {
-      Icon: IconPhone, label: 'Mobile',
-      node: phoneLinks.map((p, i) => (
-        <React.Fragment key={p.href}>{i > 0 && <span aria-hidden="true"> / </span>}<a className="bes-textlink" href={p.href}>{p.text}</a></React.Fragment>
-      )),
-    },
+    { Icon: IconPhone, label: 'Mobile', node: phoneLinks.map((n, i) => (
+      <React.Fragment key={n.href}>{i > 0 && <span aria-hidden="true"> / </span>}<a className="bes-textlink" href={n.href}>{n.text}</a></React.Fragment>
+    )) },
     { Icon: IconMail, label: 'Email', node: <a className="bes-textlink" href={`mailto:${email}`}>{email}</a> },
     { Icon: IconClock, label: 'Office hours', node: hours },
+    { Icon: IconMapPin, label: 'Address', node: address },
   ];
 
-  const labelStyle = { display: 'block', margin: '0 0 6px', fontSize: '0.88rem', fontWeight: 700 };
+  const labelStyle = { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, margin: '0 0 7px', fontSize: '0.88rem', fontWeight: 700 };
+  const hintStyle = { fontSize: '0.78rem', fontWeight: 600, color: C.muted };
   const errStyle = { margin: '6px 0 0', fontSize: '0.84rem', fontWeight: 600, color: C.danger };
+  const row2 = { display: 'grid', gridTemplateColumns: wide ? 'minmax(0, 1fr) minmax(0, 1fr)' : 'minmax(0, 1fr)', gap: 18, marginBottom: 18 };
 
   const ticket = (
     <Ticket wide={wide} Icon={IconMessageSquare} ariaLabel="School contact at a glance"
@@ -283,43 +343,46 @@ export default function ContactPage() {
         subtitle="Reach out to Bacao Elementary School by phone, email, or the message form." aside={ticket} />
 
       <main className="container" style={{ ...mainBox(wide), paddingTop: wide ? 40 : 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: wide ? 'minmax(0, 1fr) minmax(0, 1.1fr)' : 'minmax(0, 1fr)', gap: wide ? 40 : 36, alignItems: 'start' }}>
-          {/* On phones the form comes first: it is the main job of this page */}
+        <div style={{ display: 'grid', gridTemplateColumns: wide ? 'minmax(0, 1fr) minmax(0, 1.15fr)' : 'minmax(0, 1fr)', gap: wide ? 40 : 36, alignItems: 'start' }}>
+
+          {/* Form first on phones: it is the main job of this page */}
           <section aria-label="Send a message" style={{ order: wide ? 2 : 1 }}>
             <Reveal delay={80}>
               <SectionHead eyebrow="We reply as soon as we can" title="Send us a message" />
               {sent ? (
-                <div role="status" style={{ ...card, padding: 'clamp(24px, 5vw, 40px)', borderTop: `4px solid ${C.gold}`, textAlign: 'center' }}>
-                  <span aria-hidden="true" style={{ display: 'inline-grid', placeItems: 'center', width: 56, height: 56, borderRadius: 16, background: `linear-gradient(135deg, ${C.tint}, #FFE3A3)`, color: C.red, marginBottom: 14 }}><IconSend size={24} /></span>
-                  <p style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '1.2rem', letterSpacing: '-0.02em' }}>Message sent.</p>
-                  <p style={{ margin: '0 auto 20px', maxWidth: '40ch', color: C.muted, lineHeight: 1.6 }}>Thank you. The school will reply as soon as possible.</p>
+                <div role="status" style={{ ...card, padding: 'clamp(28px, 6vw, 48px)', borderTop: `4px solid ${C.gold}`, textAlign: 'center' }}>
+                  <span aria-hidden="true" style={{ display: 'inline-grid', placeItems: 'center', width: 60, height: 60, borderRadius: 16, background: `linear-gradient(135deg, ${C.tint}, #FFE3A3)`, color: C.red, marginBottom: 16 }}><IconSend size={26} /></span>
+                  <p style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '1.3rem', letterSpacing: '-0.025em' }}>Message sent.</p>
+                  <p style={{ margin: '0 auto 22px', maxWidth: '38ch', color: C.muted, lineHeight: 1.6 }}>Thank you. The school will reply as soon as possible.</p>
                   <button type="button" className="bes-btn bes-btn-outline bes-btn-sm" onClick={() => setSent(false)}>Send another message</button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} noValidate style={{ ...card, padding: 'clamp(20px, 4vw, 32px)', borderTop: `4px solid ${C.gold}` }}>
-                  <div style={{ marginBottom: 18 }}>
-                    <label htmlFor="contact-sender_name" style={labelStyle}>Full name (required)</label>
-                    <input id="contact-sender_name" type="text" autoComplete="name" className="bes-field" placeholder="Enter your full name" value={form.sender_name} onChange={set('sender_name')}
-                      aria-required="true" aria-invalid={!!errors.sender_name} aria-describedby={errors.sender_name ? 'err-name' : undefined} />
-                    {errors.sender_name && <p id="err-name" role="alert" style={errStyle}>{errors.sender_name}</p>}
+                <form onSubmit={handleSubmit} noValidate style={{ ...card, padding: 'clamp(22px, 4vw, 34px)', borderTop: `4px solid ${C.gold}` }}>
+                  <div style={row2}>
+                    <div>
+                      <label htmlFor="contact-sender_name" style={labelStyle}>Full name <span style={hintStyle}>Required</span></label>
+                      <input id="contact-sender_name" type="text" autoComplete="name" className="bes-field" placeholder="Juan Dela Cruz" value={form.sender_name} onChange={set('sender_name')}
+                        aria-required="true" aria-invalid={!!errors.sender_name} aria-describedby={errors.sender_name ? 'err-name' : undefined} />
+                      {errors.sender_name && <p id="err-name" role="alert" style={errStyle}>{errors.sender_name}</p>}
+                    </div>
+                    <div>
+                      <label htmlFor="contact-sender_email" style={labelStyle}>Email address <span style={hintStyle}>So we can reply</span></label>
+                      <input id="contact-sender_email" type="email" autoComplete="email" className="bes-field" placeholder="name@email.com" value={form.sender_email} onChange={set('sender_email')}
+                        aria-invalid={!!errors.sender_email} aria-describedby={errors.sender_email ? 'err-email' : undefined} />
+                      {errors.sender_email && <p id="err-email" role="alert" style={errStyle}>{errors.sender_email}</p>}
+                    </div>
                   </div>
                   <div style={{ marginBottom: 18 }}>
-                    <label htmlFor="contact-sender_email" style={labelStyle}>Email address (so we can reply)</label>
-                    <input id="contact-sender_email" type="email" autoComplete="email" className="bes-field" placeholder="your@email.com" value={form.sender_email} onChange={set('sender_email')}
-                      aria-invalid={!!errors.sender_email} aria-describedby={errors.sender_email ? 'err-email' : undefined} />
-                    {errors.sender_email && <p id="err-email" role="alert" style={errStyle}>{errors.sender_email}</p>}
-                  </div>
-                  <div style={{ marginBottom: 18 }}>
-                    <label htmlFor="contact-subject" style={labelStyle}>Subject</label>
+                    <label htmlFor="contact-subject" style={labelStyle}>Subject <span style={hintStyle}>Optional</span></label>
                     <input id="contact-subject" type="text" className="bes-field" placeholder="What is your message about?" value={form.subject} onChange={set('subject')} />
                   </div>
-                  <div style={{ marginBottom: 22 }}>
-                    <label htmlFor="contact-message" style={labelStyle}>Message (required)</label>
-                    <textarea id="contact-message" className="bes-field" rows="5" placeholder="Type your message here…" value={form.message} onChange={set('message')} style={{ resize: 'vertical' }}
+                  <div style={{ marginBottom: 24 }}>
+                    <label htmlFor="contact-message" style={labelStyle}>Message <span style={hintStyle}>Required</span></label>
+                    <textarea id="contact-message" className="bes-field" rows="6" placeholder="Type your message here…" value={form.message} onChange={set('message')} style={{ resize: 'vertical', minHeight: 140, lineHeight: 1.6 }}
                       aria-required="true" aria-invalid={!!errors.message} aria-describedby={errors.message ? 'err-message' : undefined} />
                     {errors.message && <p id="err-message" role="alert" style={errStyle}>{errors.message}</p>}
                   </div>
-                  <button type="submit" className="bes-btn bes-btn-primary" style={{ width: '100%' }} disabled={submitting}>
+                  <button type="submit" className="bes-btn bes-btn-primary" style={{ width: '100%', padding: '15px 24px' }} disabled={submitting}>
                     {submitting ? 'Sending…' : (<><IconSend size={16} /> Send message</>)}
                   </button>
                 </form>
@@ -330,13 +393,13 @@ export default function ContactPage() {
           <section aria-label="School contact details" style={{ order: wide ? 1 : 2 }}>
             <Reveal>
               <SectionHead eyebrow="Visit or call" title="Get in touch" />
-              <div style={{ ...card, padding: '6px 22px' }}>
+              <div style={{ ...card, padding: '4px 22px' }}>
                 {contactDetails.map((c, i) => (
-                  <div key={c.label} style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: '16px 0', borderTop: i ? `1px solid ${C.line}` : 'none' }}>
+                  <div key={c.label} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '15px 0', borderTop: i ? `1px solid ${C.line}` : 'none' }}>
                     <span aria-hidden="true" style={{ display: 'grid', placeItems: 'center', flex: 'none', width: 42, height: 42, borderRadius: 12, background: `linear-gradient(135deg, ${C.tint}, #FFE3A3)`, color: C.red }}><c.Icon size={18} /></span>
                     <div style={{ minWidth: 0 }}>
-                      <p style={{ margin: 0, fontSize: '0.82rem', fontWeight: 700, color: C.muted }}>{c.label}</p>
-                      <p style={{ margin: '2px 0 0', fontWeight: 700, fontSize: '0.95rem', lineHeight: 1.5, overflowWrap: 'anywhere' }}>{c.node}</p>
+                      <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 700, color: C.muted }}>{c.label}</p>
+                      <p style={{ margin: '2px 0 0', fontWeight: 700, fontSize: '0.96rem', lineHeight: 1.45, overflowWrap: 'anywhere' }}>{c.node}</p>
                     </div>
                   </div>
                 ))}
@@ -349,24 +412,22 @@ export default function ContactPage() {
                   <iframe src={info.google_maps_link} width="100%" height="250" style={{ border: 0, display: 'block' }}
                     allowFullScreen loading="lazy" title="BES location map" referrerPolicy="no-referrer-when-downgrade" />
                 ) : (
-                  <div style={{ minHeight: 180, display: 'grid', placeItems: 'center', padding: 24, background: C.paper, textAlign: 'center' }}>
-                    <div>
-                      <span style={{ color: C.red }}><IconMapPin size={28} /></span>
-                      <p style={{ margin: '8px 0 0', fontWeight: 800 }}>Map coming soon</p>
-                      <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: C.muted }}>For now, use the school address above.</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '22px 22px', background: C.paper }}>
+                    <span aria-hidden="true" style={{ display: 'grid', placeItems: 'center', flex: 'none', width: 48, height: 48, borderRadius: 14, background: '#fff', color: C.red, boxShadow: '0 4px 12px rgba(94,11,16,.12)' }}><IconMapPin size={22} /></span>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ margin: 0, fontWeight: 800 }}>Find us on the map</p>
+                      <p style={{ margin: '3px 0 0', fontSize: '0.88rem', lineHeight: 1.5, color: C.muted }}>An embedded map is not set up yet. Open the address in Google Maps instead.</p>
                     </div>
                   </div>
                 )}
               </div>
-              {info?.google_maps_link && (
-                <a href={info.google_maps_link} target="_blank" rel="noopener noreferrer" className="bes-btn bes-btn-outline" style={{ marginTop: 12, width: '100%', boxSizing: 'border-box' }}>
-                  <IconMapPin size={16} /> Open in Google Maps
-                </a>
-              )}
+              <a href={info?.google_maps_link || mapsSearch} target="_blank" rel="noopener noreferrer" className="bes-btn bes-btn-outline" style={{ marginTop: 12, width: '100%', boxSizing: 'border-box' }}>
+                <IconExternalLink size={16} /> Open in Google Maps
+              </a>
             </Reveal>
 
             {(csmLink?.url || feedbackLink?.url) && (
-              <Reveal delay={150} style={{ marginTop: 32 }}>
+              <Reveal delay={150} style={{ marginTop: 36 }}>
                 <SectionHead eyebrow="Tell us how we did" title="Feedback and surveys" />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {csmLink?.url && <a href={csmLink.url} target="_blank" rel="noopener noreferrer" className="bes-btn bes-btn-primary"><IconClipboard size={16} /> Client Satisfaction Survey (CSM)</a>}
