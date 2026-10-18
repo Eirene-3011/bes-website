@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import api from '../../utils/api';
 import { IconCalendar, IconSearch, IconRepeat, IconClipboard } from '../../components/Icons';
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const MONTHS_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const CATEGORY_LABELS = {
   event: 'Event',
@@ -12,6 +13,8 @@ const CATEGORY_LABELS = {
   special: 'Special',
   general: 'General',
 };
+
+function ymKey(y, m) { return `${y}-${m}`; }
 
 /* ─── Theme: same identity as Header, HomePage and AdmissionsPage ─── */
 const C = {
@@ -38,12 +41,36 @@ const card = {
   color: C.ink,
 };
 const CSS = `
-.bes-page :focus-visible { outline: 3px solid #E8B923; outline-offset: 2px; }
+.bes-page :focus-visible { outline: 3px solid #E8B923; outline-offset: -2px; }
 .bes-lift { transition: transform .18s ease, box-shadow .18s ease; }
 .bes-lift:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(94,11,16,.06), 0 16px 32px rgba(94,11,16,.12); }
+.bes-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 14px; border-radius: 8px; border: 2px solid var(--green-950, #5E0B10); background: transparent; color: var(--green-950, #5E0B10); font: inherit; font-weight: 800; font-size: .82rem; cursor: pointer; transition: transform .15s ease; }
+.bes-btn:hover { transform: translateY(-1px); }
 .bes-pillbtn { padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(142,18,24,.14); background: #fff; color: #6B4A44; font: inherit; font-weight: 700; font-size: .85rem; cursor: pointer; transition: background .2s ease, color .2s ease; }
 .bes-pillbtn[aria-pressed="true"] { background: var(--green-800, #A8161B); border-color: var(--green-800, #A8161B); color: #fff; }
-@media (prefers-reduced-motion: reduce) { .bes-lift, .bes-pillbtn { transition: none; } .bes-lift:hover { transform: none; } }
+.bes-iconbtn { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; border: 1px solid rgba(142,18,24,.2); background: #fff; color: var(--green-950, #5E0B10); font: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; transition: background .2s ease; }
+.bes-iconbtn:hover { background: #FFF4C7; }
+.bes-field { box-sizing: border-box; padding: 10px 14px; border: 1px solid rgba(142,18,24,.22); border-radius: 10px; background: #fff; font: inherit; font-size: .92rem; font-weight: 600; color: var(--green-950, #5E0B10); cursor: pointer; }
+.bes-field:focus { outline: none; border-color: var(--green-800, #A8161B); box-shadow: 0 0 0 3px rgba(168,22,27,.15); }
+
+.bes-cal-weekdays, .bes-cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.bes-cal-weekdays { background: #FFF4C7; border-bottom: 1px solid rgba(142,18,24,.14); }
+.bes-cal-weekday { text-align: center; padding: 10px 0; font-size: .8rem; font-weight: 800; color: #6B4A44; }
+.bes-cal-cell { position: relative; box-sizing: border-box; height: 76px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 0; border: 0; border-right: 1px solid rgba(142,18,24,.08); border-bottom: 1px solid rgba(142,18,24,.08); background: #fff; font: inherit; color: var(--green-950, #5E0B10); }
+.bes-cal-cell:nth-child(7n) { border-right: 0; }
+.bes-cal-empty { background: #FFFBEA; }
+.bes-cal-num { font-size: .95rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.bes-cal-has { cursor: pointer; background: #FBE3E3; transition: background .15s ease; }
+.bes-cal-has .bes-cal-num { font-weight: 800; color: var(--green-900, #8E1218); }
+.bes-cal-has:hover { background: #F7CFCF; }
+.bes-cal-today { box-shadow: inset 0 0 0 2px var(--green-800, #A8161B); }
+.bes-cal-selected, .bes-cal-selected:hover { background: var(--green-800, #A8161B); }
+.bes-cal-selected .bes-cal-num { color: #fff; }
+.bes-cal-dots { display: flex; gap: 3px; }
+.bes-cal-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-800, #A8161B); }
+.bes-cal-selected .bes-cal-dot { background: #fff; }
+@media (max-width: 480px) { .bes-cal-cell { height: 54px; gap: 3px; } .bes-cal-num { font-size: .82rem; } }
+@media (prefers-reduced-motion: reduce) { .bes-lift, .bes-btn, .bes-pillbtn, .bes-cal-has { transition: none; } .bes-lift:hover, .bes-btn:hover { transform: none; } }
 `;
 
 function useWide() {
@@ -110,25 +137,53 @@ function Ticket({ wide, Icon, label, value, note, rows = [] }) {
   );
 }
 
-/* Month heading: the month number sits in the red margin rule */
-function MonthHead({ num, eyebrow, title }) {
+/* Heading with the red double margin rule; the number (month or day) sits in the rule */
+function MarginHead({ num, eyebrow, title, action }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'stretch', marginBottom: 18 }}>
-      <span aria-hidden="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', alignSelf: 'stretch', flex: 'none', minWidth: 44, paddingRight: 16, marginRight: 18, borderRight: `5px double ${C.margin}`, color: C.red, fontSize: '1.05rem', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{num}</span>
-      <div style={{ minWidth: 0 }}>
+    <div style={{ display: 'flex', alignItems: 'stretch', gap: 12, flexWrap: 'wrap', marginBottom: 18 }}>
+      <span aria-hidden="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', alignSelf: 'stretch', flex: 'none', minWidth: 44, paddingRight: 16, borderRight: `5px double ${C.margin}`, color: C.red, fontSize: '1.05rem', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{num}</span>
+      <div style={{ minWidth: 0, flex: 1 }}>
         <p style={{ margin: '0 0 4px', color: C.red, fontWeight: 700, fontSize: '0.9rem' }}>{eyebrow}</p>
         <h2 style={{ margin: 0, color: C.ink, fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 1.1, fontSize: 'clamp(1.35rem, 2.4vw, 1.7rem)' }}>{title}</h2>
       </div>
+      {action}
     </div>
   );
 }
 
-function EmptyState({ Icon, children }) {
+function EmptyState({ children }) {
   return (
-    <div style={{ ...card, boxShadow: 'none', border: `2px dashed ${C.line}`, padding: '36px 24px', textAlign: 'center' }}>
-      <span aria-hidden="true" style={{ display: 'inline-grid', placeItems: 'center', width: 48, height: 48, borderRadius: 12, background: C.tint, color: C.red, marginBottom: 12 }}><Icon size={22} /></span>
+    <div style={{ ...card, boxShadow: 'none', border: `2px dashed ${C.line}`, padding: '32px 24px', textAlign: 'center' }}>
+      <span aria-hidden="true" style={{ display: 'inline-grid', placeItems: 'center', width: 48, height: 48, borderRadius: 12, background: C.tint, color: C.red, marginBottom: 12 }}><IconCalendar size={22} /></span>
       <p style={{ margin: 0, color: C.muted, fontSize: '0.98rem', lineHeight: 1.6 }}>{children}</p>
     </div>
+  );
+}
+
+function AgendaRow({ ev }) {
+  const startDate = new Date(ev.start_date);
+  const hasRange = ev.end_date && ev.end_date !== ev.start_date;
+  return (
+    <li className="bes-lift" style={{ ...card, display: 'flex', gap: 16, padding: '14px 18px', alignItems: 'center' }}>
+      <div aria-hidden="true" style={{ flex: 'none', width: 56, textAlign: 'center', borderRadius: 8, overflow: 'hidden', border: `1px solid ${C.line}`, background: C.paper }}>
+        <p style={{ margin: 0, padding: '3px 0', background: C.red, color: '#fff', fontSize: '0.72rem', fontWeight: 800 }}>{MONTHS_SHORT[startDate.getMonth()]}</p>
+        <p style={{ margin: 0, padding: '6px 0 7px', color: C.ink, fontSize: '1.45rem', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.03em' }}>{startDate.getDate()}</p>
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <h3 style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.02em', lineHeight: 1.35 }}>{ev.event_name}</h3>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+          {ev.category && (
+            <span style={{ padding: '3px 11px', borderRadius: 999, fontSize: '0.75rem', fontWeight: 700, background: C.tint, color: C.deep }}>{CATEGORY_LABELS[ev.category] || ev.category}</span>
+          )}
+          {hasRange && <span style={{ fontSize: '0.84rem', color: C.muted }}>{fmtDate(ev.start_date)} to {fmtDate(ev.end_date)}</span>}
+          {!!ev.is_recurring && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '0.82rem', color: C.muted }}>
+              <IconRepeat size={13} /> Recurring yearly
+            </span>
+          )}
+        </div>
+      </div>
+    </li>
   );
 }
 
@@ -139,10 +194,36 @@ export default function SchoolCalendarPage() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
+  const [viewDate, setViewDate] = useState(() => {
+    const t = new Date();
+    return { year: t.getFullYear(), month: t.getMonth() };
+  });
+  const [selectedDay, setSelectedDay] = useState(null);
+
+  const initializedRef = useRef(false);
+  const today = new Date();
 
   useEffect(() => {
     api.get('/calendar').then((r) => setEvents(r.data)).finally(() => setLoading(false));
   }, []);
+
+  // On first load, jump to the nearest month that actually has events
+  useEffect(() => {
+    if (initializedRef.current || events.length === 0) return;
+    initializedRef.current = true;
+    const monthsSet = new Set();
+    events.forEach((e) => {
+      if (!e.start_date) return;
+      const d = new Date(e.start_date);
+      monthsSet.add(ymKey(d.getFullYear(), d.getMonth()));
+    });
+    const monthsArr = Array.from(monthsSet)
+      .map((k) => { const [y, m] = k.split('-').map(Number); return { y, m }; })
+      .sort((a, b) => a.y - b.y || a.m - b.m);
+    const upcoming = monthsArr.find((x) => x.y > today.getFullYear() || (x.y === today.getFullYear() && x.m >= today.getMonth()));
+    const chosen = upcoming || monthsArr[0];
+    if (chosen) setViewDate({ year: chosen.y, month: chosen.m });
+  }, [events]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const categories = useMemo(() => {
     const set = new Set();
@@ -150,32 +231,105 @@ export default function SchoolCalendarPage() {
     return ['all', ...Array.from(set)];
   }, [events]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return events.filter((e) => {
-      const matchesCategory = activeCategory === 'all' || e.category === activeCategory;
-      const matchesQuery = !q || e.event_name?.toLowerCase().includes(q);
-      return matchesCategory && matchesQuery;
-    });
-  }, [events, query, activeCategory]);
+  const byCategory = useMemo(
+    () => events.filter((e) => activeCategory === 'all' || e.category === activeCategory),
+    [events, activeCategory]
+  );
 
   const next = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const t = new Date();
+    t.setHours(0, 0, 0, 0);
     return events
-      .filter((e) => e.start_date && new Date(e.start_date) >= today)
+      .filter((e) => e.start_date && new Date(e.start_date) >= t)
       .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))[0];
   }, [events]);
 
-  // Group filtered events by the month of their start_date
-  const grouped = {};
-  filtered.forEach((e) => {
-    if (!e.start_date) return;
-    const m = new Date(e.start_date).getMonth();
-    if (Number.isNaN(m)) return;
-    if (!grouped[m]) grouped[m] = [];
-    grouped[m].push(e);
-  });
+  const searchMode = query.trim().length > 0;
+
+  // Search mode: agenda grouped by month and year
+  const searchResults = useMemo(() => {
+    if (!searchMode) return {};
+    const q = query.trim().toLowerCase();
+    const grouped = {};
+    byCategory.filter((e) => e.event_name?.toLowerCase().includes(q)).forEach((e) => {
+      if (!e.start_date) return;
+      const d = new Date(e.start_date);
+      const key = ymKey(d.getFullYear(), d.getMonth());
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(e);
+    });
+    return grouped;
+  }, [searchMode, query, byCategory]);
+
+  // Month-jump options come from all events (ignores the category filter)
+  const monthOptions = useMemo(() => {
+    const set = new Set();
+    events.forEach((e) => {
+      if (!e.start_date) return;
+      const d = new Date(e.start_date);
+      set.add(ymKey(d.getFullYear(), d.getMonth()));
+    });
+    return Array.from(set)
+      .map((k) => { const [y, m] = k.split('-').map(Number); return { y, m }; })
+      .sort((a, b) => a.y - b.y || a.m - b.m);
+  }, [events]);
+
+  // Events overlapping the viewed month
+  const monthEvents = useMemo(() => {
+    const monthStart = new Date(viewDate.year, viewDate.month, 1);
+    const monthEnd = new Date(viewDate.year, viewDate.month + 1, 0);
+    return byCategory.filter((e) => {
+      if (!e.start_date) return false;
+      const s = new Date(e.start_date);
+      const en = e.end_date ? new Date(e.end_date) : s;
+      return s <= monthEnd && en >= monthStart;
+    });
+  }, [byCategory, viewDate]);
+
+  // Day of month -> events covering that day
+  const eventsByDay = useMemo(() => {
+    const map = {};
+    const monthStart = new Date(viewDate.year, viewDate.month, 1);
+    const monthEnd = new Date(viewDate.year, viewDate.month + 1, 0);
+    monthEvents.forEach((e) => {
+      const s = new Date(e.start_date);
+      const en = e.end_date ? new Date(e.end_date) : s;
+      const cur = s < monthStart ? new Date(monthStart) : new Date(s);
+      const last = en > monthEnd ? monthEnd : en;
+      while (cur <= last) {
+        const day = cur.getDate();
+        if (!map[day]) map[day] = [];
+        map[day].push(e);
+        cur.setDate(cur.getDate() + 1);
+      }
+    });
+    return map;
+  }, [monthEvents, viewDate]);
+
+  const gridCells = useMemo(() => {
+    const startWeekday = new Date(viewDate.year, viewDate.month, 1).getDay();
+    const daysInMonth = new Date(viewDate.year, viewDate.month + 1, 0).getDate();
+    const cells = [];
+    for (let i = 0; i < startWeekday; i++) cells.push(null);
+    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+    while (cells.length % 7 !== 0) cells.push(null);
+    return cells;
+  }, [viewDate]);
+
+  const isCurrentRealMonth = viewDate.year === today.getFullYear() && viewDate.month === today.getMonth();
+
+  const goToMonth = (year, month) => { setViewDate({ year, month }); setSelectedDay(null); };
+  const shiftMonth = (delta) => {
+    let { year, month } = viewDate;
+    month += delta;
+    if (month < 0) { month = 11; year -= 1; }
+    if (month > 11) { month = 0; year += 1; }
+    goToMonth(year, month);
+  };
+
+  const agendaList = selectedDay ? (eventsByDay[selectedDay] || []) : monthEvents;
+  const agendaSorted = [...agendaList].sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+  const plural = (n) => `${n} ${n === 1 ? 'event' : 'events'}`;
 
   return (
     <div className="bes-page" style={{ background: C.cream, color: C.ink, minHeight: '60vh', paddingBottom: wide ? 96 : 64 }}>
@@ -185,7 +339,7 @@ export default function SchoolCalendarPage() {
         wide={wide}
         eyebrow="School Calendar"
         title="Important dates for the school year."
-        subtitle="Events, holidays, and academic dates, grouped by month."
+        subtitle="Browse the month, tap a highlighted day to see what is happening, or search by event name."
         aside={
           <Ticket wide={wide} Icon={IconCalendar} label="Next event"
             value={loading ? '…' : next ? fmtDate(next.start_date, { month: 'short', day: 'numeric' }) : 'None set'}
@@ -197,12 +351,13 @@ export default function SchoolCalendarPage() {
         }
       />
 
-      <main className="container" style={{ maxWidth: 820, padding: wide ? '40px 24px 0' : '28px 16px 0', display: 'flex', flexDirection: 'column', gap: wide ? 40 : 32 }}>
+      <main className="container" style={{ maxWidth: 860, padding: wide ? '40px 24px 0' : '28px 16px 0', display: 'flex', flexDirection: 'column', gap: 24 }}>
+        {/* Search + category filter */}
         {!loading && events.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: '1 1 220px', maxWidth: 300, padding: '0 14px', background: '#fff', border: `1px solid ${C.line}`, borderRadius: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: '1 1 220px', maxWidth: 320, padding: '0 14px', background: '#fff', border: `1px solid ${C.line}`, borderRadius: 10 }}>
               <IconSearch size={16} style={{ color: C.muted, flexShrink: 0 }} />
-              <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search events…" aria-label="Search events"
+              <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search events by name…" aria-label="Search events"
                 style={{ border: 'none', outline: 'none', background: 'transparent', font: 'inherit', fontSize: '0.92rem', padding: '12px 0', width: '100%', color: C.ink }} />
             </div>
             {categories.length > 1 && (
@@ -217,6 +372,30 @@ export default function SchoolCalendarPage() {
           </div>
         )}
 
+        {/* Month navigator: hidden while searching, since search shows an agenda across all months */}
+        {!loading && events.length > 0 && !searchMode && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <button type="button" className="bes-iconbtn" onClick={() => shiftMonth(-1)} aria-label="Previous month">‹</button>
+              <h2 aria-live="polite" style={{ margin: 0, minWidth: wide ? 220 : 170, textAlign: 'center', color: C.ink, fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 1.1, fontSize: 'clamp(1.35rem, 3vw, 1.8rem)' }}>
+                {MONTHS[viewDate.month]} {viewDate.year}
+              </h2>
+              <button type="button" className="bes-iconbtn" onClick={() => shiftMonth(1)} aria-label="Next month">›</button>
+            </div>
+            {monthOptions.length > 0 && (
+              <select className="bes-field" aria-label="Jump to month" value={ymKey(viewDate.year, viewDate.month)}
+                onChange={(e) => { const [y, m] = e.target.value.split('-').map(Number); goToMonth(y, m); }}>
+                {!monthOptions.some(({ y, m }) => y === viewDate.year && m === viewDate.month) && (
+                  <option value={ymKey(viewDate.year, viewDate.month)}>{MONTHS[viewDate.month]} {viewDate.year}</option>
+                )}
+                {monthOptions.map(({ y, m }) => (
+                  <option key={ymKey(y, m)} value={ymKey(y, m)}>{MONTHS[m]} {y}</option>
+                ))}
+              </select>
+            )}
+          </div>
+        )}
+
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {Array.from({ length: 6 }).map((_, i) => (
@@ -227,43 +406,85 @@ export default function SchoolCalendarPage() {
             ))}
           </div>
         ) : events.length === 0 ? (
-          <EmptyState Icon={IconCalendar}>No calendar events have been posted yet.</EmptyState>
-        ) : filtered.length === 0 ? (
-          <EmptyState Icon={IconSearch}>No events match your search or filter. Clear them to see the full calendar.</EmptyState>
+          <EmptyState>No calendar events have been posted yet.</EmptyState>
+        ) : searchMode ? (
+          /* Search results: agenda grouped by month and year */
+          Object.keys(searchResults).length === 0 ? (
+            <EmptyState>No events match your search or filter. Clear the search to return to the calendar.</EmptyState>
+          ) : (
+            Object.entries(searchResults)
+              .sort(([a], [b]) => {
+                const [ay, am] = a.split('-').map(Number);
+                const [by, bm] = b.split('-').map(Number);
+                return ay - by || am - bm;
+              })
+              .map(([key, evs]) => {
+                const [y, m] = key.split('-').map(Number);
+                return (
+                  <section key={key} aria-label={`${MONTHS[m]} ${y}`}>
+                    <MarginHead num={String(m + 1).padStart(2, '0')} eyebrow={plural(evs.length)} title={`${MONTHS[m]} ${y}`} />
+                    <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {[...evs].sort((a, b) => new Date(a.start_date) - new Date(b.start_date)).map((ev) => <AgendaRow key={ev.id} ev={ev} />)}
+                    </ul>
+                  </section>
+                );
+              })
+          )
         ) : (
-          Object.entries(grouped).sort(([a], [b]) => +a - +b).map(([month, evs]) => (
-            <section key={month} aria-label={MONTHS_FULL[+month]}>
-              <MonthHead num={String(+month + 1).padStart(2, '0')} eyebrow={`${evs.length} ${evs.length === 1 ? 'event' : 'events'}`} title={MONTHS_FULL[+month]} />
-              <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {[...evs].sort((a, b) => new Date(a.start_date) - new Date(b.start_date)).map((ev) => {
-                  const startDate = new Date(ev.start_date);
-                  const hasRange = ev.end_date && ev.end_date !== ev.start_date;
+          /* Real month-grid calendar */
+          <>
+            <div style={{ ...card, overflow: 'hidden' }}>
+              <div className="bes-cal-weekdays">
+                {WEEKDAYS.map((w) => <div key={w} className="bes-cal-weekday">{w}</div>)}
+              </div>
+              <div className="bes-cal-grid">
+                {gridCells.map((day, i) => {
+                  if (day === null) return <div key={i} className="bes-cal-cell bes-cal-empty" aria-hidden="true" />;
+                  const dayEvents = eventsByDay[day] || [];
+                  const hasEvents = dayEvents.length > 0;
+                  const isToday = isCurrentRealMonth && day === today.getDate();
+                  const isSelected = selectedDay === day;
+                  const cls = ['bes-cal-cell', hasEvents && 'bes-cal-has', isSelected && 'bes-cal-selected', isToday && 'bes-cal-today'].filter(Boolean).join(' ');
+
+                  if (!hasEvents) {
+                    return (
+                      <div key={i} className={cls} aria-current={isToday ? 'date' : undefined}>
+                        <span className="bes-cal-num">{day}</span>
+                      </div>
+                    );
+                  }
                   return (
-                    <li key={ev.id} className="bes-lift" style={{ ...card, display: 'flex', gap: 16, padding: '14px 18px', alignItems: 'center' }}>
-                      <div aria-hidden="true" style={{ flex: 'none', width: 56, textAlign: 'center', borderRadius: 8, overflow: 'hidden', border: `1px solid ${C.line}`, background: C.paper }}>
-                        <p style={{ margin: 0, padding: '3px 0', background: C.red, color: '#fff', fontSize: '0.72rem', fontWeight: 800 }}>{MONTHS[+month]}</p>
-                        <p style={{ margin: 0, padding: '6px 0 7px', color: C.ink, fontSize: '1.45rem', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.03em' }}>{startDate.getDate()}</p>
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <h3 style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.02em', lineHeight: 1.35 }}>{ev.event_name}</h3>
-                        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-                          {ev.category && (
-                            <span style={{ padding: '3px 11px', borderRadius: 999, fontSize: '0.75rem', fontWeight: 700, background: C.tint, color: C.deep }}>{CATEGORY_LABELS[ev.category] || ev.category}</span>
-                          )}
-                          {hasRange && <span style={{ fontSize: '0.84rem', color: C.muted }}>{fmtDate(ev.start_date)} to {fmtDate(ev.end_date)}</span>}
-                          {!!ev.is_recurring && (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '0.82rem', color: C.muted }}>
-                              <IconRepeat size={13} /> Recurring yearly
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </li>
+                    <button key={i} type="button" className={cls} aria-pressed={isSelected} aria-current={isToday ? 'date' : undefined}
+                      aria-label={`${MONTHS[viewDate.month]} ${day}, ${plural(dayEvents.length)}`}
+                      onClick={() => setSelectedDay(isSelected ? null : day)}>
+                      <span className="bes-cal-num">{day}</span>
+                      <span className="bes-cal-dots" aria-hidden="true">
+                        {dayEvents.slice(0, 3).map((_, di) => <span key={di} className="bes-cal-dot" />)}
+                      </span>
+                    </button>
                   );
                 })}
-              </ul>
+              </div>
+            </div>
+
+            <section aria-label="Event list">
+              <MarginHead
+                num={String(selectedDay || viewDate.month + 1).padStart(2, '0')}
+                eyebrow={plural(agendaSorted.length)}
+                title={selectedDay ? `${MONTHS[viewDate.month]} ${selectedDay}, ${viewDate.year}` : `All events in ${MONTHS[viewDate.month]} ${viewDate.year}`}
+                action={selectedDay ? (
+                  <button type="button" className="bes-btn" style={{ alignSelf: 'center' }} onClick={() => setSelectedDay(null)}>Show whole month</button>
+                ) : null}
+              />
+              {agendaSorted.length === 0 ? (
+                <EmptyState>No events {selectedDay ? 'on this day' : 'this month'}.</EmptyState>
+              ) : (
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {agendaSorted.map((ev) => <AgendaRow key={ev.id} ev={ev} />)}
+                </ul>
+              )}
             </section>
-          ))
+          </>
         )}
       </main>
     </div>
