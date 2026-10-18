@@ -345,6 +345,11 @@ export default function ContactPage() {
   const phoneLinks = String(mobile).split('/').map((x) => x.trim()).filter(Boolean)
     .map((n) => ({ text: n, href: `tel:${n.replace(/[^\d+]/g, '')}` }));
 
+  const labelStyle = { display: 'block', margin: '0 0 7px', fontSize: '0.9rem', fontWeight: 700 };
+  const hintStyle = { fontWeight: 500, color: C.muted };
+  const errStyle = { margin: '6px 0 0', fontSize: '0.84rem', fontWeight: 600, color: C.danger };
+  const linkStyle = { color: C.red, textDecoration: 'none' };
+
   const contactDetails = [
     { Icon: IconPhone, label: 'Mobile', node: phoneLinks.map((n, i) => (
       <React.Fragment key={n.href}>{i > 0 && <span aria-hidden="true"> / </span>}<a style={linkStyle} href={n.href}>{n.text}</a></React.Fragment>
@@ -353,11 +358,6 @@ export default function ContactPage() {
     { Icon: IconClock, label: 'Office hours', node: hours },
     { Icon: IconMapPin, label: 'Address', node: address },
   ];
-
-  const labelStyle = { display: 'block', margin: '0 0 7px', fontSize: '0.9rem', fontWeight: 700 };
-  const hintStyle = { fontWeight: 500, color: C.muted };
-  const errStyle = { margin: '6px 0 0', fontSize: '0.84rem', fontWeight: 600, color: C.danger };
-  const linkStyle = { color: C.red, textDecoration: 'none' };
 
   const ticket = (
     <Ticket wide={wide} Icon={IconMessageSquare} ariaLabel="School contact at a glance"
