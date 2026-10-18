@@ -8,83 +8,46 @@ const C = {
   red: 'var(--green-800, #A8161B)', deep: 'var(--green-900, #8E1218)', ink: 'var(--green-950, #5E0B10)',
   gold: '#E8B923', goldText: '#8A5A00', paper: '#FFF4C7', cream: '#FFFBEA', tint: '#FBE3E3',
   muted: '#6B4A44', line: 'rgba(142, 18, 24, 0.14)', rule: 'rgba(142, 18, 24, 0.15)',
-  margin: 'rgba(196, 30, 36, 0.65)', up: '#1a7f37',
+  margin: 'rgba(196, 30, 36, 0.65)', danger: '#B3261E',
 };
+
 const GRAD = 'var(--grad-masthead, linear-gradient(135deg, #5E0B10, #A8161B))';
+
 const paperBg = {
   backgroundColor: C.paper,
   backgroundImage: `repeating-linear-gradient(to bottom, transparent 0, transparent 35px, ${C.rule} 35px, ${C.rule} 36px), linear-gradient(180deg, #FFF4C7 0%, #FFE88F 100%)`,
 };
+
 const card = {
   background: '#fff', border: `1px solid ${C.line}`, borderRadius: 14,
   boxShadow: '0 1px 2px rgba(94, 11, 16, 0.06), 0 8px 20px rgba(94, 11, 16, 0.06)', color: C.ink,
 };
-const sectionPad = (wide) => ({ scrollMarginTop: 72, padding: wide ? '48px 0 0' : '32px 0 0' });
+
 const mainBox = (wide) => ({ maxWidth: 960, padding: wide ? '0 24px' : '0 16px' });
+
 const pageShell = (wide) => ({ background: C.cream, color: C.ink, minHeight: '60vh', paddingBottom: wide ? 96 : 64 });
+
+const stripTags = (h) => String(h || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
 const CSS = `
 .bes-page :focus-visible { outline: 3px solid #E8B923; outline-offset: 2px; border-radius: 6px; }
-.bes-reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s cubic-bezier(.2,.7,.2,1), transform .65s cubic-bezier(.2,.7,.2,1); }
-.bes-reveal.in { opacity: 1; transform: none; }
-.bes-rise { animation: bes-rise .75s cubic-bezier(.2,.7,.2,1) both; }
-@keyframes bes-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
-@keyframes bes-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes bes-pop { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
-@keyframes bes-float { 0%,100% { transform: translateY(0) rotate(var(--rot, 0deg)); } 50% { transform: translateY(-8px) rotate(calc(var(--rot, 0deg) * .35)); } }
-@keyframes bes-drift { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-20px) scale(1.08); } }
-@keyframes bes-shimmer { to { background-position: -200% 0; } }
-@keyframes bes-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-.bes-grow { transform-origin: bottom; animation: bes-grow .8s cubic-bezier(.2,.7,.2,1) both; }
-.bes-ticket { animation: bes-float 7s ease-in-out infinite; transform: rotate(var(--rot, 0deg)); }
-.bes-blob { position: absolute; border-radius: 50%; pointer-events: none; animation: bes-drift 14s ease-in-out infinite; }
-.bes-lift { transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease; }
-.bes-lift:hover { transform: translateY(-6px); border-color: rgba(142,18,24,.3); box-shadow: 0 2px 4px rgba(94,11,16,.06), 0 22px 40px rgba(94,11,16,.16); }
-.bes-media { position: relative; overflow: hidden; }
-.bes-media img { transition: transform .7s cubic-bezier(.2,.7,.2,1); }
-.bes-lift:hover .bes-media img, .bes-zoom:hover img { transform: scale(1.04); }
-.bes-zoom { position: relative; display: block; width: 100%; padding: 0; border: 0; background: none; overflow: hidden; cursor: zoom-in; }
-.bes-zoom img { transition: transform .7s cubic-bezier(.2,.7,.2,1); }
-.bes-hint { opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease; }
-.bes-zoom:hover .bes-hint, .bes-zoom:focus-visible .bes-hint { opacity: 1; transform: none; }
-.bes-filter { padding: 9px 18px; border-radius: 999px; cursor: pointer; font: inherit; font-weight: 700; font-size: 13.5px; color: var(--green-950, #5E0B10); background: #fff; border: 1px solid rgba(142,18,24,.14); display: inline-flex; align-items: center; gap: 8px; transition: background .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease; }
-.bes-filter:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(94,11,16,.12); }
-.bes-filter[aria-pressed="true"] { color: #fff; background: linear-gradient(100deg, #5E0B10, #A8161B); border-color: transparent; box-shadow: 0 8px 18px rgba(94,11,16,.28); }
-.bes-filter .bes-count { font-size: 11.5px; min-width: 20px; padding: 1px 7px; border-radius: 999px; background: rgba(142,18,24,.1); text-align: center; }
-.bes-filter[aria-pressed="true"] .bes-count { background: rgba(255,255,255,.22); }
-.bes-search { position: relative; display: flex; align-items: center; gap: 10px; padding: 0 16px; background: #fff; border: 1px solid rgba(142,18,24,.18); border-radius: 12px; transition: border-color .2s ease, box-shadow .2s ease; }
-.bes-search:focus-within { border-color: #A8161B; box-shadow: 0 0 0 4px rgba(168,22,27,.12); }
-.bes-search input { border: none; outline: none; background: transparent; font: inherit; font-size: .95rem; padding: 13px 0; width: 100%; color: var(--green-950, #5E0B10); }
-.bes-link { transition: gap .2s ease, color .2s ease; display: inline-flex; align-items: center; gap: 6px; }
-.bes-lift:hover .bes-link { gap: 12px; }
-.bes-skel { background: linear-gradient(90deg, #f6e9c6 0%, #fff6d8 50%, #f6e9c6 100%); background-size: 200% 100%; animation: bes-shimmer 1.4s linear infinite; border-radius: 8px; }
-.bes-lb-btn { display: grid; place-items: center; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.14); color: #fff; cursor: pointer; backdrop-filter: blur(6px); transition: background .2s ease, transform .2s ease; }
-.bes-lb-btn:hover { background: rgba(255,255,255,.28); }
+.bes-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* accordion: height animates open/closed */
+.bes-acc { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease; }
+.bes-acc[data-open="true"] { grid-template-rows: 1fr; }
+.bes-acc > div { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility .3s; }
+.bes-acc[data-open="true"] > div { visibility: visible; }
+
 @media (prefers-reduced-motion: reduce) {
   .bes-reveal { opacity: 1; transform: none; transition: none; }
-  .bes-rise, .bes-ticket, .bes-blob, .bes-skel, .bes-grow { animation: none; }
-  .bes-lift, .bes-lift:hover, .bes-media img, .bes-zoom img, .bes-filter { transition: none; transform: none; }
+  .bes-rise, .bes-ticket, .bes-blob, .bes-skel { animation: none; }
+  .bes-lift, .bes-lift:hover, .bes-media img, .bes-zoom img, .bes-filter, .bes-btn, .bes-btn:hover, .bes-iconbtn, .bes-acc, .bes-acc > div { transition: none; transform: none; }
   .bes-lift:hover .bes-media img, .bes-zoom:hover img { transform: none; }
 }
 `;
 
-function BesStyles() {
-  return <style>{CSS}</style>;
-}
-
-const BTN_CSS = `
-.bes-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 24px; border-radius: 12px; border: 2px solid transparent; font: inherit; font-weight: 800; font-size: .95rem; text-decoration: none; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
-.bes-btn:hover { transform: translateY(-2px); }
-.bes-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
-.bes-btn-primary { background: var(--green-800, #A8161B); color: #fff; box-shadow: 0 8px 18px rgba(94,11,16,.28); }
-.bes-btn-outline { background: transparent; color: var(--green-950, #5E0B10); border-color: var(--green-950, #5E0B10); }
-.bes-btn-outline:hover { background: var(--green-950, #5E0B10); color: #fff; }
-.bes-btn-white { background: #fff; color: var(--green-950, #5E0B10); box-shadow: 0 10px 22px rgba(0,0,0,.25); }
-.bes-btn-sm { padding: 9px 16px; font-size: .84rem; border-radius: 10px; }
-.bes-field { width: 100%; box-sizing: border-box; padding: 13px 14px; border: 1px solid rgba(142,18,24,.18); border-radius: 12px; background: #fff; font: inherit; font-size: .95rem; color: var(--green-950, #5E0B10); transition: border-color .2s ease, box-shadow .2s ease; }
-.bes-field:focus { outline: none; border-color: #A8161B; box-shadow: 0 0 0 4px rgba(168,22,27,.12); }
-@media (prefers-reduced-motion: reduce) { .bes-btn { transition: none; } .bes-btn:hover { transform: none; } }
-`;
+function BesStyles() { return <style>{CSS}</style>; }
 
 function useWide() {
   const q = '(min-width: 761px)';
@@ -98,8 +61,8 @@ function useWide() {
   return m;
 }
 
-/* Fades + lifts its children in when scrolled into view */
-function Reveal({ children, delay = 0, style, ...rest }) {
+/* Fades + lifts its child in once, when scrolled into view. Use `as="li"` inside lists. */
+function Reveal({ as: Tag = 'div', children, delay = 0, style, ...rest }) {
   const ref = useRef(null);
   const [seen, setSeen] = useState(() => typeof IntersectionObserver === 'undefined');
   useEffect(() => {
@@ -113,13 +76,12 @@ function Reveal({ children, delay = 0, style, ...rest }) {
     return () => io.disconnect();
   }, [seen]);
   return (
-    <div ref={ref} className={`bes-reveal${seen ? ' in' : ''}`} style={{ transitionDelay: seen ? `${delay}ms` : '0ms', ...style }} {...rest}>
+    <Tag ref={ref} className={`bes-reveal${seen ? ' in' : ''}`} style={{ transitionDelay: seen ? `${delay}ms` : '0ms', ...style }} {...rest}>
       {children}
-    </div>
+    </Tag>
   );
 }
 
-/* Counts up to a number; strings pass straight through */
 function CountUp({ value }) {
   const isNum = typeof value === 'number';
   const [n, setN] = useState(0);
@@ -140,7 +102,20 @@ function CountUp({ value }) {
   return <>{isNum ? n.toLocaleString() : value}</>;
 }
 
-/* ─── Hero: legal pad, drifting light, margin line, wave edge ─── */
+function Crumbs({ items }) {
+  return (
+    <nav aria-label="Breadcrumb" style={{ marginBottom: 14, fontSize: '0.85rem', color: C.muted }}>
+      {items.map((c, i) => (
+        <span key={c.label}>
+          {i > 0 && <span aria-hidden="true"> › </span>}
+          {c.to ? <Link to={c.to} style={{ color: C.red, fontWeight: 700, textDecoration: 'none' }}>{c.label}</Link> : <span aria-current="page">{c.label}</span>}
+        </span>
+      ))}
+    </nav>
+  );
+}
+
+/* Hero: legal pad, drifting light, margin line, wave edge */
 function Hero({ wide, above, eyebrow, title, subtitle, aside, extra }) {
   return (
     <header style={{ position: 'relative', overflow: 'hidden', ...paperBg }}>
@@ -164,7 +139,7 @@ function Hero({ wide, above, eyebrow, title, subtitle, aside, extra }) {
   );
 }
 
-/* ─── "Ticket" stat card: one headline fact + supporting rows ─── */
+/* "Ticket" stat card: one headline fact + supporting rows */
 function Ticket({ wide, Icon, label, value, note, rows = [], ariaLabel }) {
   return (
     <aside aria-label={ariaLabel || label} className="bes-ticket" style={{ position: 'relative', ...card, '--rot': wide ? '1.2deg' : '0deg', borderRadius: 16, boxShadow: '0 28px 54px rgba(94, 11, 16, 0.22)' }}>
@@ -198,12 +173,13 @@ function Ticket({ wide, Icon, label, value, note, rows = [], ariaLabel }) {
   );
 }
 
-function EmptyState({ Icon, title, children }) {
+function EmptyState({ Icon, title, children, action }) {
   return (
     <div className="bes-reveal in" style={{ ...card, boxShadow: 'none', border: `2px dashed ${C.line}`, padding: '44px 24px', textAlign: 'center' }}>
       <span aria-hidden="true" style={{ display: 'inline-grid', placeItems: 'center', width: 56, height: 56, borderRadius: 16, background: `linear-gradient(135deg, ${C.tint}, #FFE3A3)`, color: C.red, marginBottom: 14 }}><Icon size={24} /></span>
       {title && <p style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '1.1rem' }}>{title}</p>}
       {children && <p style={{ margin: '0 auto', maxWidth: '44ch', color: C.muted, fontSize: '0.98rem', lineHeight: 1.6 }}>{children}</p>}
+      {action && <div style={{ marginTop: 18 }}>{action}</div>}
     </div>
   );
 }
@@ -211,31 +187,51 @@ function EmptyState({ Icon, title, children }) {
 function SearchBox({ value, onChange, placeholder, label, style }) {
   return (
     <label className="bes-search" style={{ marginBottom: 18, ...style }}>
-      <span style={{ position: 'absolute', left: -9999 }}>{label}</span>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+      <span className="bes-sr">{label}</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round" aria-hidden="true" style={{ flex: 'none' }}><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
       <input type="search" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
+      {value && <button type="button" className="bes-clear" aria-label="Clear search" onClick={() => onChange('')}>&times;</button>}
     </label>
+  );
+}
+
+/* Highlights the first match of `q` (already lower-cased) in `text` */
+function Mark({ text, q }) {
+  if (!q || !text) return text || null;
+  const i = text.toLowerCase().indexOf(q);
+  if (i < 0) return text;
+  return <>{text.slice(0, i)}<mark className="bes-mark">{text.slice(i, i + q.length)}</mark>{text.slice(i + q.length)}</>;
+}
+
+/* Polite result count for screen readers + a quiet visible line */
+function ResultCount({ shown, total, noun, visible = true }) {
+  const msg = shown === total ? `${total} ${noun}` : `Showing ${shown} of ${total} ${noun}`;
+  return (
+    <p role="status" aria-live="polite" className={visible ? undefined : 'bes-sr'} style={visible ? { margin: '0 0 14px', fontSize: '0.88rem', color: C.muted } : undefined}>{msg}</p>
   );
 }
 
 function SkeletonGrid({ min = 280, count = 3, height = 300 }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${min}px, 1fr))`, gap: 22 }}>
+    <div aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(min(${min}px, 100%), 1fr))`, gap: 22 }}>
       {Array.from({ length: count }).map((_, i) => <div key={i} className="bes-skel" style={{ height, borderRadius: 14 }} />)}
     </div>
   );
 }
 
-function Crumbs({ items }) {
+/* Full-width closing banner (the maroon "legal pad" panel) */
+function PageBanner({ wide, title, text, children }) {
   return (
-    <nav aria-label="Breadcrumb" style={{ marginBottom: 14, fontSize: '0.85rem', color: C.muted }}>
-      {items.map((c, i) => (
-        <span key={c.label}>
-          {i > 0 && <span aria-hidden="true"> › </span>}
-          {c.to ? <Link to={c.to} style={{ color: C.red, fontWeight: 700, textDecoration: 'none' }}>{c.label}</Link> : <span aria-current="page">{c.label}</span>}
-        </span>
-      ))}
-    </nav>
+    <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, color: '#fff', background: GRAD, boxShadow: '0 24px 48px rgba(94, 11, 16, 0.28)' }}>
+      <span aria-hidden="true" className="bes-blob" style={{ top: -90, right: -60, width: 300, height: 300, background: 'radial-gradient(circle at 40% 40%, rgba(232,185,35,.35), rgba(232,185,35,0) 70%)' }} />
+      <span aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'repeating-linear-gradient(to bottom, transparent 0, transparent 35px, rgba(255, 255, 255, 0.07) 35px, rgba(255, 255, 255, 0.07) 36px)' }} />
+      <span aria-hidden="true" style={{ position: 'absolute', top: 0, bottom: 0, left: wide ? 40 : 14, width: 5, boxSizing: 'border-box', borderLeft: '1px solid rgba(255, 255, 255, 0.4)', borderRight: '1px solid rgba(255, 255, 255, 0.4)' }} />
+      <div style={{ position: 'relative', padding: wide ? '44px 48px 44px 88px' : '32px 22px 32px 40px' }}>
+        <h2 style={{ margin: '0 0 10px', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.05, fontSize: 'clamp(1.6rem, 3.6vw, 2.4rem)' }}>{title}</h2>
+        <p style={{ margin: '0 0 24px', maxWidth: '46ch', fontSize: '1.02rem', lineHeight: 1.6, opacity: 0.92 }}>{text}</p>
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -255,11 +251,13 @@ export default function FAQPage() {
   const [query, setQuery] = useState('');
 
   useEffect(() => {
-    api.get('/faqs').then((r) => setFaqs(r.data)).finally(() => setLoading(false));
+    api.get('/faqs').then((r) => setFaqs(r.data)).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  const needle = query.trim().toLowerCase();
-  const shown = faqs.filter((f) => !needle || f.question?.toLowerCase().includes(needle));
+  const q = query.trim().toLowerCase();
+  const shown = faqs.filter((f) => !q || f.question?.toLowerCase().includes(q) || stripTags(f.answer_richtext).toLowerCase().includes(q));
+  // While searching, open the single best match so the answer is visible right away
+  const openId = q && shown.length === 1 ? shown[0].id : open;
 
   const ticket = (
     <Ticket wide={wide} Icon={IconMessageSquare} ariaLabel="Questions answered" label="Questions answered"
@@ -269,41 +267,53 @@ export default function FAQPage() {
   return (
     <div className="bes-page" style={pageShell(wide)}>
       <BesStyles />
-      <style>{BTN_CSS}</style>
       <Hero wide={wide} above={<Crumbs items={[{ label: 'Home', to: '/' }, { label: 'Contact', to: '/contact' }, { label: 'FAQ' }]} />}
         eyebrow="FAQ" title="Answers to common questions."
         subtitle="Quick answers about Bacao Elementary School. Tap a question to read the answer." aside={ticket} />
 
       <main className="container" style={{ ...mainBox(wide), maxWidth: 820, paddingTop: wide ? 40 : 28, display: 'flex', flexDirection: 'column', gap: wide ? 48 : 36 }}>
         <div>
-          {!loading && faqs.length > 6 && <SearchBox value={query} onChange={setQuery} label="Search questions" placeholder="Search questions…" style={{ maxWidth: 380 }} />}
+          {!loading && faqs.length > 6 && (
+            <>
+              <SearchBox value={query} onChange={setQuery} label="Search questions" placeholder="Search questions…" style={{ maxWidth: 380, marginBottom: 10 }} />
+              {q && <ResultCount shown={shown.length} total={faqs.length} noun="questions" />}
+            </>
+          )}
 
           {loading ? (
             <SkeletonGrid min={500} count={5} height={64} />
           ) : faqs.length === 0 ? (
-            <EmptyState Icon={IconMessageSquare} title="No FAQs yet.">No FAQs have been posted yet. Use the contact page to ask the school directly.</EmptyState>
+            <EmptyState Icon={IconMessageSquare} title="No FAQs yet."
+              action={<Link to="/contact" className="bes-btn bes-btn-outline bes-btn-sm">Ask the school</Link>}>
+              No FAQs have been posted yet. Use the contact page to ask the school directly.
+            </EmptyState>
           ) : shown.length === 0 ? (
-            <EmptyState Icon={IconMessageSquare} title="No matches.">No questions match “{query}”. Try a different word.</EmptyState>
+            <EmptyState Icon={IconMessageSquare} title="No matches."
+              action={<button type="button" className="bes-btn bes-btn-outline bes-btn-sm" onClick={() => setQuery('')}>Clear search</button>}>
+              No questions match “{query.trim()}”. Try a different word.
+            </EmptyState>
           ) : (
             <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
               {shown.map((faq, i) => {
-                const isOpen = open === faq.id;
+                const isOpen = openId === faq.id;
                 return (
-                  <Reveal key={faq.id} delay={Math.min(i, 5) * 50}>
-                    <li style={{ ...card, overflow: 'hidden', borderLeft: `4px solid ${isOpen ? C.red : C.gold}`, transition: 'border-color 0.2s ease, box-shadow 0.2s ease', boxShadow: isOpen ? '0 14px 30px rgba(94, 11, 16, 0.12)' : card.boxShadow }}>
+                  <Reveal as="li" key={faq.id} delay={Math.min(i, 5) * 50}>
+                    <div style={{ ...card, overflow: 'hidden', borderLeft: `4px solid ${isOpen ? C.red : C.gold}`, transition: 'border-color 0.2s ease, box-shadow 0.2s ease', boxShadow: isOpen ? '0 14px 30px rgba(94, 11, 16, 0.12)' : card.boxShadow }}>
                       <h3 style={{ margin: 0 }}>
-                        <button type="button" onClick={() => setOpen(isOpen ? null : faq.id)} aria-expanded={isOpen} aria-controls={`faq-panel-${faq.id}`}
+                        <button type="button" id={`faq-btn-${faq.id}`} onClick={() => setOpen(isOpen ? null : faq.id)} aria-expanded={isOpen} aria-controls={`faq-panel-${faq.id}`}
                           style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, padding: '18px 20px', background: isOpen ? C.paper : '#fff', border: 'none', cursor: 'pointer', textAlign: 'left', font: 'inherit', fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.015em', lineHeight: 1.4, color: C.ink, transition: 'background 0.2s ease' }}>
-                          <span>{faq.question}</span>
+                          <span><Mark text={faq.question} q={q} /></span>
                           <span style={{ color: C.red, display: 'flex' }}><ChevronIcon open={isOpen} /></span>
                         </button>
                       </h3>
-                      {isOpen && (
-                        <div id={`faq-panel-${faq.id}`} className="rich-content" role="region"
-                          style={{ padding: '16px 20px 20px', borderTop: `1px solid ${C.line}`, background: '#fff', fontSize: '0.95rem', color: C.ink, lineHeight: 1.7, animation: 'bes-fade .25s ease-out' }}
-                          dangerouslySetInnerHTML={{ __html: faq.answer_richtext }} />
-                      )}
-                    </li>
+                      <div className="bes-acc" data-open={isOpen}>
+                        <div id={`faq-panel-${faq.id}`} role="region" aria-labelledby={`faq-btn-${faq.id}`}>
+                          <div className="rich-content"
+                            style={{ padding: '16px 20px 20px', borderTop: `1px solid ${C.line}`, background: '#fff', fontSize: '0.95rem', color: C.ink, lineHeight: 1.7 }}
+                            dangerouslySetInnerHTML={{ __html: faq.answer_richtext }} />
+                        </div>
+                      </div>
+                    </div>
                   </Reveal>
                 );
               })}
@@ -312,16 +322,9 @@ export default function FAQPage() {
         </div>
 
         <Reveal>
-          <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, color: '#fff', background: GRAD, boxShadow: '0 24px 48px rgba(94, 11, 16, 0.28)' }}>
-            <span aria-hidden="true" className="bes-blob" style={{ top: -90, right: -60, width: 300, height: 300, background: 'radial-gradient(circle at 40% 40%, rgba(232,185,35,.35), rgba(232,185,35,0) 70%)' }} />
-            <span aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'repeating-linear-gradient(to bottom, transparent 0, transparent 35px, rgba(255, 255, 255, 0.07) 35px, rgba(255, 255, 255, 0.07) 36px)' }} />
-            <span aria-hidden="true" style={{ position: 'absolute', top: 0, bottom: 0, left: wide ? 40 : 14, width: 5, boxSizing: 'border-box', borderLeft: '1px solid rgba(255, 255, 255, 0.4)', borderRight: '1px solid rgba(255, 255, 255, 0.4)' }} />
-            <div style={{ position: 'relative', padding: wide ? '44px 48px 44px 88px' : '32px 22px 32px 40px' }}>
-              <h2 style={{ margin: '0 0 10px', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.05, fontSize: 'clamp(1.6rem, 3.6vw, 2.4rem)' }}>Can’t find the answer you’re looking for?</h2>
-              <p style={{ margin: '0 0 24px', maxWidth: '46ch', fontSize: '1.02rem', lineHeight: 1.6, opacity: 0.9 }}>Send the school a message and we will get back to you as soon as possible.</p>
-              <Link to="/contact" className="bes-btn bes-btn-white">Contact the school</Link>
-            </div>
-          </div>
+          <PageBanner wide={wide} title="Can’t find the answer you’re looking for?" text="Send the school a message and we will get back to you as soon as possible.">
+            <Link to="/contact" className="bes-btn bes-btn-white">Contact the school</Link>
+          </PageBanner>
         </Reveal>
       </main>
     </div>
