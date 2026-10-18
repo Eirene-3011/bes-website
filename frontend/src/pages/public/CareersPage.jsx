@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 import { IconUsers, IconMail, IconClipboard } from '../../components/Icons';
 
@@ -7,69 +8,48 @@ const C = {
   red: 'var(--green-800, #A8161B)', deep: 'var(--green-900, #8E1218)', ink: 'var(--green-950, #5E0B10)',
   gold: '#E8B923', goldText: '#8A5A00', paper: '#FFF4C7', cream: '#FFFBEA', tint: '#FBE3E3',
   muted: '#6B4A44', line: 'rgba(142, 18, 24, 0.14)', rule: 'rgba(142, 18, 24, 0.15)',
-  margin: 'rgba(196, 30, 36, 0.65)', up: '#1a7f37',
+  margin: 'rgba(196, 30, 36, 0.65)', danger: '#B3261E',
 };
-const GRAD = 'var(--grad-masthead, linear-gradient(135deg, #5E0B10, #A8161B))';
+
 const paperBg = {
   backgroundColor: C.paper,
   backgroundImage: `repeating-linear-gradient(to bottom, transparent 0, transparent 35px, ${C.rule} 35px, ${C.rule} 36px), linear-gradient(180deg, #FFF4C7 0%, #FFE88F 100%)`,
 };
+
 const card = {
   background: '#fff', border: `1px solid ${C.line}`, borderRadius: 14,
   boxShadow: '0 1px 2px rgba(94, 11, 16, 0.06), 0 8px 20px rgba(94, 11, 16, 0.06)', color: C.ink,
 };
+
 const sectionPad = (wide) => ({ scrollMarginTop: 72, padding: wide ? '48px 0 0' : '32px 0 0' });
+
 const mainBox = (wide) => ({ maxWidth: 960, padding: wide ? '0 24px' : '0 16px' });
+
 const pageShell = (wide) => ({ background: C.cream, color: C.ink, minHeight: '60vh', paddingBottom: wide ? 96 : 64 });
+
+const stripTags = (h) => String(h || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
+const hasBody = (b) => !!b?.body_richtext && stripTags(b.body_richtext).length > 0;
 
 const CSS = `
 .bes-page :focus-visible { outline: 3px solid #E8B923; outline-offset: 2px; border-radius: 6px; }
-.bes-reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s cubic-bezier(.2,.7,.2,1), transform .65s cubic-bezier(.2,.7,.2,1); }
-.bes-reveal.in { opacity: 1; transform: none; }
-.bes-rise { animation: bes-rise .75s cubic-bezier(.2,.7,.2,1) both; }
-@keyframes bes-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
-@keyframes bes-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes bes-pop { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
-@keyframes bes-float { 0%,100% { transform: translateY(0) rotate(var(--rot, 0deg)); } 50% { transform: translateY(-8px) rotate(calc(var(--rot, 0deg) * .35)); } }
-@keyframes bes-drift { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-20px) scale(1.08); } }
-@keyframes bes-shimmer { to { background-position: -200% 0; } }
-@keyframes bes-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-.bes-grow { transform-origin: bottom; animation: bes-grow .8s cubic-bezier(.2,.7,.2,1) both; }
-.bes-ticket { animation: bes-float 7s ease-in-out infinite; transform: rotate(var(--rot, 0deg)); }
-.bes-blob { position: absolute; border-radius: 50%; pointer-events: none; animation: bes-drift 14s ease-in-out infinite; }
-.bes-lift { transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease; }
-.bes-lift:hover { transform: translateY(-6px); border-color: rgba(142,18,24,.3); box-shadow: 0 2px 4px rgba(94,11,16,.06), 0 22px 40px rgba(94,11,16,.16); }
-.bes-media { position: relative; overflow: hidden; }
-.bes-media img { transition: transform .7s cubic-bezier(.2,.7,.2,1); }
-.bes-lift:hover .bes-media img, .bes-zoom:hover img { transform: scale(1.04); }
-.bes-zoom { position: relative; display: block; width: 100%; padding: 0; border: 0; background: none; overflow: hidden; cursor: zoom-in; }
-.bes-zoom img { transition: transform .7s cubic-bezier(.2,.7,.2,1); }
-.bes-hint { opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease; }
-.bes-zoom:hover .bes-hint, .bes-zoom:focus-visible .bes-hint { opacity: 1; transform: none; }
-.bes-filter { padding: 9px 18px; border-radius: 999px; cursor: pointer; font: inherit; font-weight: 700; font-size: 13.5px; color: var(--green-950, #5E0B10); background: #fff; border: 1px solid rgba(142,18,24,.14); display: inline-flex; align-items: center; gap: 8px; transition: background .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease; }
-.bes-filter:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(94,11,16,.12); }
-.bes-filter[aria-pressed="true"] { color: #fff; background: linear-gradient(100deg, #5E0B10, #A8161B); border-color: transparent; box-shadow: 0 8px 18px rgba(94,11,16,.28); }
-.bes-filter .bes-count { font-size: 11.5px; min-width: 20px; padding: 1px 7px; border-radius: 999px; background: rgba(142,18,24,.1); text-align: center; }
-.bes-filter[aria-pressed="true"] .bes-count { background: rgba(255,255,255,.22); }
-.bes-search { position: relative; display: flex; align-items: center; gap: 10px; padding: 0 16px; background: #fff; border: 1px solid rgba(142,18,24,.18); border-radius: 12px; transition: border-color .2s ease, box-shadow .2s ease; }
-.bes-search:focus-within { border-color: #A8161B; box-shadow: 0 0 0 4px rgba(168,22,27,.12); }
-.bes-search input { border: none; outline: none; background: transparent; font: inherit; font-size: .95rem; padding: 13px 0; width: 100%; color: var(--green-950, #5E0B10); }
-.bes-link { transition: gap .2s ease, color .2s ease; display: inline-flex; align-items: center; gap: 6px; }
-.bes-lift:hover .bes-link { gap: 12px; }
-.bes-skel { background: linear-gradient(90deg, #f6e9c6 0%, #fff6d8 50%, #f6e9c6 100%); background-size: 200% 100%; animation: bes-shimmer 1.4s linear infinite; border-radius: 8px; }
-.bes-lb-btn { display: grid; place-items: center; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.14); color: #fff; cursor: pointer; backdrop-filter: blur(6px); transition: background .2s ease, transform .2s ease; }
-.bes-lb-btn:hover { background: rgba(255,255,255,.28); }
+.bes-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* accordion: height animates open/closed */
+.bes-acc { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease; }
+.bes-acc[data-open="true"] { grid-template-rows: 1fr; }
+.bes-acc > div { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility .3s; }
+.bes-acc[data-open="true"] > div { visibility: visible; }
+
 @media (prefers-reduced-motion: reduce) {
   .bes-reveal { opacity: 1; transform: none; transition: none; }
-  .bes-rise, .bes-ticket, .bes-blob, .bes-skel, .bes-grow { animation: none; }
-  .bes-lift, .bes-lift:hover, .bes-media img, .bes-zoom img, .bes-filter { transition: none; transform: none; }
+  .bes-rise, .bes-ticket, .bes-blob, .bes-skel { animation: none; }
+  .bes-lift, .bes-lift:hover, .bes-media img, .bes-zoom img, .bes-filter, .bes-btn, .bes-btn:hover, .bes-iconbtn, .bes-acc, .bes-acc > div { transition: none; transform: none; }
   .bes-lift:hover .bes-media img, .bes-zoom:hover img { transform: none; }
 }
 `;
 
-function BesStyles() {
-  return <style>{CSS}</style>;
-}
+function BesStyles() { return <style>{CSS}</style>; }
 
 function useWide() {
   const q = '(min-width: 761px)';
@@ -83,8 +63,8 @@ function useWide() {
   return m;
 }
 
-/* Fades + lifts its children in when scrolled into view */
-function Reveal({ children, delay = 0, style, ...rest }) {
+/* Fades + lifts its child in once, when scrolled into view. Use `as="li"` inside lists. */
+function Reveal({ as: Tag = 'div', children, delay = 0, style, ...rest }) {
   const ref = useRef(null);
   const [seen, setSeen] = useState(() => typeof IntersectionObserver === 'undefined');
   useEffect(() => {
@@ -98,13 +78,12 @@ function Reveal({ children, delay = 0, style, ...rest }) {
     return () => io.disconnect();
   }, [seen]);
   return (
-    <div ref={ref} className={`bes-reveal${seen ? ' in' : ''}`} style={{ transitionDelay: seen ? `${delay}ms` : '0ms', ...style }} {...rest}>
+    <Tag ref={ref} className={`bes-reveal${seen ? ' in' : ''}`} style={{ transitionDelay: seen ? `${delay}ms` : '0ms', ...style }} {...rest}>
       {children}
-    </div>
+    </Tag>
   );
 }
 
-/* Counts up to a number; strings pass straight through */
 function CountUp({ value }) {
   const isNum = typeof value === 'number';
   const [n, setN] = useState(0);
@@ -125,7 +104,20 @@ function CountUp({ value }) {
   return <>{isNum ? n.toLocaleString() : value}</>;
 }
 
-/* ─── Hero: legal pad, drifting light, margin line, wave edge ─── */
+function Crumbs({ items }) {
+  return (
+    <nav aria-label="Breadcrumb" style={{ marginBottom: 14, fontSize: '0.85rem', color: C.muted }}>
+      {items.map((c, i) => (
+        <span key={c.label}>
+          {i > 0 && <span aria-hidden="true"> › </span>}
+          {c.to ? <Link to={c.to} style={{ color: C.red, fontWeight: 700, textDecoration: 'none' }}>{c.label}</Link> : <span aria-current="page">{c.label}</span>}
+        </span>
+      ))}
+    </nav>
+  );
+}
+
+/* Hero: legal pad, drifting light, margin line, wave edge */
 function Hero({ wide, above, eyebrow, title, subtitle, aside, extra }) {
   return (
     <header style={{ position: 'relative', overflow: 'hidden', ...paperBg }}>
@@ -149,7 +141,7 @@ function Hero({ wide, above, eyebrow, title, subtitle, aside, extra }) {
   );
 }
 
-/* ─── "Ticket" stat card: one headline fact + supporting rows ─── */
+/* "Ticket" stat card: one headline fact + supporting rows */
 function Ticket({ wide, Icon, label, value, note, rows = [], ariaLabel }) {
   return (
     <aside aria-label={ariaLabel || label} className="bes-ticket" style={{ position: 'relative', ...card, '--rot': wide ? '1.2deg' : '0deg', borderRadius: 16, boxShadow: '0 28px 54px rgba(94, 11, 16, 0.22)' }}>
@@ -183,17 +175,18 @@ function Ticket({ wide, Icon, label, value, note, rows = [], ariaLabel }) {
   );
 }
 
-/* ─── Section heading in the red double-rule "notebook margin" ─── */
-function SectionHead({ Icon, num, eyebrow, title, note, right }) {
+/* Section heading in the red double-rule "notebook margin" */
+function SectionHead({ Icon, num, eyebrow, title, note, right, level = 2 }) {
+  const H = `h${level}`;
   return (
     <div style={{ display: 'flex', alignItems: 'stretch', marginBottom: 26, gap: 16, flexWrap: 'wrap' }}>
       <div style={{ display: 'flex', alignItems: 'stretch', flex: '1 1 260px', minWidth: 0 }}>
-        <span aria-hidden="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', alignSelf: 'stretch', flex: 'none', minWidth: num ? 44 : 0, paddingRight: 16, marginRight: 18, borderRight: `5px double ${C.margin}`, color: C.red, fontWeight: 800, fontSize: '1.05rem', fontVariantNumeric: 'tabular-nums' }}>
-          {num || (Icon && <Icon size={22} />)}
+        <span aria-hidden="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', alignSelf: 'stretch', flex: 'none', minWidth: num !== undefined ? 44 : 0, paddingRight: Icon || num !== undefined ? 16 : 0, marginRight: 18, borderRight: `5px double ${C.margin}`, color: C.red, fontWeight: 800, fontSize: '1.05rem', fontVariantNumeric: 'tabular-nums' }}>
+          {num !== undefined ? num : (Icon && <Icon size={22} />)}
         </span>
         <div style={{ minWidth: 0 }}>
           {eyebrow && <p style={{ margin: '0 0 4px', color: C.red, fontWeight: 700, fontSize: '0.9rem' }}>{eyebrow}</p>}
-          <h2 style={{ margin: 0, color: C.ink, fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 1.1, fontSize: 'clamp(1.6rem, 3vw, 2.2rem)' }}>{title}</h2>
+          <H style={{ margin: 0, color: C.ink, fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 1.1, fontSize: 'clamp(1.6rem, 3vw, 2.2rem)' }}>{title}</H>
           {note && <p style={{ margin: '6px 0 0', fontSize: '0.95rem', color: C.muted }}>{note}</p>}
         </div>
       </div>
@@ -202,25 +195,25 @@ function SectionHead({ Icon, num, eyebrow, title, note, right }) {
   );
 }
 
-function EmptyState({ Icon, title, children }) {
+function EmptyState({ Icon, title, children, action }) {
   return (
     <div className="bes-reveal in" style={{ ...card, boxShadow: 'none', border: `2px dashed ${C.line}`, padding: '44px 24px', textAlign: 'center' }}>
       <span aria-hidden="true" style={{ display: 'inline-grid', placeItems: 'center', width: 56, height: 56, borderRadius: 16, background: `linear-gradient(135deg, ${C.tint}, #FFE3A3)`, color: C.red, marginBottom: 14 }}><Icon size={24} /></span>
       {title && <p style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '1.1rem' }}>{title}</p>}
       {children && <p style={{ margin: '0 auto', maxWidth: '44ch', color: C.muted, fontSize: '0.98rem', lineHeight: 1.6 }}>{children}</p>}
+      {action && <div style={{ marginTop: 18 }}>{action}</div>}
     </div>
   );
 }
 
 function SkeletonGrid({ min = 280, count = 3, height = 300 }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${min}px, 1fr))`, gap: 22 }}>
+    <div aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(min(${min}px, 100%), 1fr))`, gap: 22 }}>
       {Array.from({ length: count }).map((_, i) => <div key={i} className="bes-skel" style={{ height, borderRadius: 14 }} />)}
     </div>
   );
 }
 
-const hasBody = (b) => !!b?.body_richtext && b.body_richtext.replace(/<[^>]*>/g, '').trim().length > 0;
 const EMAIL = '107957@deped.gov.ph';
 
 export default function CareersPage() {
@@ -249,7 +242,8 @@ export default function CareersPage() {
   return (
     <div className="bes-page" style={pageShell(wide)}>
       <BesStyles />
-      <Hero wide={wide} eyebrow="Careers & Job Vacancies" title="Work with BES."
+      <Hero wide={wide} above={<Crumbs items={[{ label: 'Home', to: '/' }, { label: 'Careers' }]} />}
+        eyebrow="Careers & Job Vacancies" title="Work with BES."
         subtitle="Join a caring school community committed to helping every learner grow, belong and excel." aside={ticket} />
 
       <main className="container" style={mainBox(wide)}>
@@ -261,20 +255,20 @@ export default function CareersPage() {
             ) : posted ? (
               <div className="rich-content" style={{ ...card, padding: wide ? 32 : 20 }} dangerouslySetInnerHTML={{ __html: content.body_richtext }} />
             ) : (
-              <EmptyState Icon={IconClipboard} title="No job vacancies are posted right now.">
+              <EmptyState Icon={IconClipboard} title="No job vacancies are posted right now."
+                action={<a href={`mailto:${EMAIL}?subject=Job%20inquiry`} className="bes-btn bes-btn-outline bes-btn-sm"><IconMail size={14} /> Ask the school</a>}>
                 Vacancy announcements and application steps will appear here once the school confirms them.
               </EmptyState>
             )}
           </Reveal>
 
-          <Reveal delay={120}>
-            <aside style={{ ...card, padding: '26px 26px 28px', borderTop: `4px solid ${C.gold}`, marginTop: wide ? 6 : 0 }}>
-              <h3 style={{ margin: '0 0 10px', fontWeight: 800, fontSize: '1.2rem', letterSpacing: '-0.025em' }}>Meaningful work begins with service.</h3>
-              <p style={{ margin: 0 0 20px, lineHeight: 1.65, color: C.muted }}>
-                BES welcomes dedicated professionals who share a commitment to children, learning and community.
-              </p>
-              <a href={`mailto:${EMAIL}`} className="bes-btn bes-btn-primary" style={{ padding: '12px 20px' }}><IconMail size={16} /> Email the school</a>
-            </aside>
+          <Reveal delay={120} as="aside" aria-label="Contact the school about careers"
+            style={{ ...card, padding: '26px 26px 28px', borderTop: `4px solid ${C.gold}`, marginTop: wide ? 6 : 0 }}>
+            <h3 style={{ margin: '0 0 10px', fontWeight: 800, fontSize: '1.2rem', letterSpacing: '-0.025em' }}>Meaningful work begins with service.</h3>
+            <p style={{ margin: '0 0 20px', lineHeight: 1.65, color: C.muted }}>
+              BES welcomes dedicated professionals who share a commitment to children, learning and community.
+            </p>
+            <a href={`mailto:${EMAIL}`} className="bes-btn bes-btn-primary" style={{ padding: '12px 20px' }}><IconMail size={16} /> Email the school</a>
           </Reveal>
         </section>
       </main>
