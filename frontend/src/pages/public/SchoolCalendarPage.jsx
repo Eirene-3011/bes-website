@@ -160,22 +160,58 @@ function EmptyState({ children }) {
   );
 }
 
+const DAY_MS = 86400000;
+const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+
+// Left accent per category, kept inside the school palette
+const ACCENT = { event: C.red, academic: C.deep, holiday: '#E8B923', special: C.ink, general: C.margin };
+
+// Where an event sits relative to today
+function eventStatus(ev) {
+  const t = startOfDay(new Date()).getTime();
+  const s = startOfDay(ev.start_date).getTime();
+  const e = startOfDay(ev.end_date || ev.start_date).getTime();
+  if (t > e) return { key: 'past', label: 'Ended' };
+  if (t >= s) return { key: 'now', label: s === e ? 'Today' : 'Happening now' };
+  const days = Math.round((s - t) / DAY_MS);
+  return { key: 'soon', label: days === 1 ? 'Tomorrow' : `In ${days} days` };
+}
+
+const STATUS_STYLE = {
+  now: { background: C.red, color: '#fff' },
+  soon: { background: '#FFF1BF', color: '#8A5A00' },
+  past: { background: C.cream, color: C.muted, border: `1px solid ${C.line}` },
+};
+
 function AgendaRow({ ev }) {
-  const startDate = new Date(ev.start_date);
-  const hasRange = ev.end_date && ev.end_date !== ev.start_date;
+  const start = new Date(ev.start_date);
+  const end = ev.end_date ? new Date(ev.end_date) : start;
+  const hasRange = startOfDay(end).getTime() > startOfDay(start).getTime();
+  const days = Math.round((startOfDay(end) - startOfDay(start)) / DAY_MS) + 1;
+  const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+  const status = eventStatus(ev);
+  const short = { weekday: 'short', month: 'short', day: 'numeric' };
+
+  const chipMonth = hasRange && !sameMonth ? `${MONTHS_SHORT[start.getMonth()]}–${MONTHS_SHORT[end.getMonth()]}` : MONTHS_SHORT[start.getMonth()];
+  const chipDay = hasRange ? `${start.getDate()}–${end.getDate()}` : `${start.getDate()}`;
+
   return (
-    <li className="bes-lift" style={{ ...card, display: 'flex', gap: 16, padding: '14px 18px', alignItems: 'center' }}>
-      <div aria-hidden="true" style={{ flex: 'none', width: 56, textAlign: 'center', borderRadius: 8, overflow: 'hidden', border: `1px solid ${C.line}`, background: C.paper }}>
-        <p style={{ margin: 0, padding: '3px 0', background: C.red, color: '#fff', fontSize: '0.72rem', fontWeight: 800 }}>{MONTHS_SHORT[startDate.getMonth()]}</p>
-        <p style={{ margin: 0, padding: '6px 0 7px', color: C.ink, fontSize: '1.45rem', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.03em' }}>{startDate.getDate()}</p>
+    <li className="bes-lift" style={{ ...card, display: 'flex', gap: 16, padding: '16px 18px', alignItems: 'center', flexWrap: 'wrap', borderLeft: `4px solid ${ACCENT[ev.category] || C.margin}`, opacity: status.key === 'past' ? 0.75 : 1 }}>
+      {/* Calendar-leaf date chip */}
+      <div aria-hidden="true" style={{ flex: 'none', minWidth: 64, display: 'flex', flexDirection: 'column', borderRadius: 10, overflow: 'hidden', border: `1px solid ${C.line}`, background: C.paper }}>
+        <span style={{ display: 'block', padding: '4px 8px', background: C.red, color: '#fff', fontSize: '0.74rem', fontWeight: 800, textAlign: 'center' }}>{chipMonth}</span>
+        <span style={{ display: 'block', padding: '7px 8px 8px', color: C.ink, fontSize: hasRange ? '1.3rem' : '1.6rem', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.03em', textAlign: 'center', whiteSpace: 'nowrap' }}>{chipDay}</span>
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <h3 style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.02em', lineHeight: 1.35 }}>{ev.event_name}</h3>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+
+      <div style={{ flex: '1 1 220px', minWidth: 0 }}>
+        <h3 style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '1.05rem', letterSpacing: '-0.02em', lineHeight: 1.3 }}>{ev.event_name}</h3>
+        <div style={{ display: 'flex', gap: '6px 12px', flexWrap: 'wrap', alignItems: 'center' }}>
           {ev.category && (
             <span style={{ padding: '3px 11px', borderRadius: 999, fontSize: '0.75rem', fontWeight: 700, background: C.tint, color: C.deep }}>{CATEGORY_LABELS[ev.category] || ev.category}</span>
           )}
-          {hasRange && <span style={{ fontSize: '0.84rem', color: C.muted }}>{fmtDate(ev.start_date)} to {fmtDate(ev.end_date)}</span>}
+          <span style={{ fontSize: '0.86rem', color: C.muted }}>
+            {hasRange ? `${fmtDate(start, short)} to ${fmtDate(end, short)} (${days} days)` : fmtDate(start, { weekday: 'long', month: 'long', day: 'numeric' })}
+          </span>
           {!!ev.is_recurring && (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: '0.82rem', color: C.muted }}>
               <IconRepeat size={13} /> Recurring yearly
@@ -183,6 +219,8 @@ function AgendaRow({ ev }) {
           )}
         </div>
       </div>
+
+      <span style={{ marginLeft: 'auto', padding: '5px 12px', borderRadius: 999, fontSize: '0.78rem', fontWeight: 800, whiteSpace: 'nowrap', ...STATUS_STYLE[status.key] }}>{status.label}</span>
     </li>
   );
 }
@@ -469,9 +507,9 @@ export default function SchoolCalendarPage() {
 
             <section aria-label="Event list">
               <MarginHead
-                num={String(selectedDay || viewDate.month + 1).padStart(2, '0')}
-                eyebrow={plural(agendaSorted.length)}
-                title={selectedDay ? `${MONTHS[viewDate.month]} ${selectedDay}, ${viewDate.year}` : `All events in ${MONTHS[viewDate.month]} ${viewDate.year}`}
+                num={agendaSorted.length}
+                eyebrow={selectedDay ? (agendaSorted.length === 1 ? 'event on this day' : 'events on this day') : (agendaSorted.length === 1 ? 'event this month' : 'events this month')}
+                title={selectedDay ? `${MONTHS[viewDate.month]} ${selectedDay}, ${viewDate.year}` : `${MONTHS[viewDate.month]} ${viewDate.year}`}
                 action={selectedDay ? (
                   <button type="button" className="bes-btn" style={{ alignSelf: 'center' }} onClick={() => setSelectedDay(null)}>Show whole month</button>
                 ) : null}
