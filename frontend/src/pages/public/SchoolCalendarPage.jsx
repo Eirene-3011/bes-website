@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 import { IconCalendar, IconRepeat, IconClipboard } from '../../components/Icons';
 
@@ -7,83 +8,47 @@ const C = {
   red: 'var(--green-800, #A8161B)', deep: 'var(--green-900, #8E1218)', ink: 'var(--green-950, #5E0B10)',
   gold: '#E8B923', goldText: '#8A5A00', paper: '#FFF4C7', cream: '#FFFBEA', tint: '#FBE3E3',
   muted: '#6B4A44', line: 'rgba(142, 18, 24, 0.14)', rule: 'rgba(142, 18, 24, 0.15)',
-  margin: 'rgba(196, 30, 36, 0.65)', up: '#1a7f37',
+  margin: 'rgba(196, 30, 36, 0.65)', danger: '#B3261E',
 };
+
 const GRAD = 'var(--grad-masthead, linear-gradient(135deg, #5E0B10, #A8161B))';
+
 const paperBg = {
   backgroundColor: C.paper,
   backgroundImage: `repeating-linear-gradient(to bottom, transparent 0, transparent 35px, ${C.rule} 35px, ${C.rule} 36px), linear-gradient(180deg, #FFF4C7 0%, #FFE88F 100%)`,
 };
+
 const card = {
   background: '#fff', border: `1px solid ${C.line}`, borderRadius: 14,
   boxShadow: '0 1px 2px rgba(94, 11, 16, 0.06), 0 8px 20px rgba(94, 11, 16, 0.06)', color: C.ink,
 };
-const sectionPad = (wide) => ({ scrollMarginTop: 72, padding: wide ? '48px 0 0' : '32px 0 0' });
+
 const mainBox = (wide) => ({ maxWidth: 960, padding: wide ? '0 24px' : '0 16px' });
+
 const pageShell = (wide) => ({ background: C.cream, color: C.ink, minHeight: '60vh', paddingBottom: wide ? 96 : 64 });
+
+const fmtDate = (d, opts = { year: 'numeric', month: 'long', day: 'numeric' }) =>
+  d ? new Date(d).toLocaleDateString('en-PH', opts) : '';
 
 const CSS = `
 .bes-page :focus-visible { outline: 3px solid #E8B923; outline-offset: 2px; border-radius: 6px; }
-.bes-reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s cubic-bezier(.2,.7,.2,1), transform .65s cubic-bezier(.2,.7,.2,1); }
-.bes-reveal.in { opacity: 1; transform: none; }
-.bes-rise { animation: bes-rise .75s cubic-bezier(.2,.7,.2,1) both; }
-@keyframes bes-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
-@keyframes bes-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes bes-pop { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
-@keyframes bes-float { 0%,100% { transform: translateY(0) rotate(var(--rot, 0deg)); } 50% { transform: translateY(-8px) rotate(calc(var(--rot, 0deg) * .35)); } }
-@keyframes bes-drift { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(26px,-20px) scale(1.08); } }
-@keyframes bes-shimmer { to { background-position: -200% 0; } }
-@keyframes bes-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-.bes-grow { transform-origin: bottom; animation: bes-grow .8s cubic-bezier(.2,.7,.2,1) both; }
-.bes-ticket { animation: bes-float 7s ease-in-out infinite; transform: rotate(var(--rot, 0deg)); }
-.bes-blob { position: absolute; border-radius: 50%; pointer-events: none; animation: bes-drift 14s ease-in-out infinite; }
-.bes-lift { transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease; }
-.bes-lift:hover { transform: translateY(-6px); border-color: rgba(142,18,24,.3); box-shadow: 0 2px 4px rgba(94,11,16,.06), 0 22px 40px rgba(94,11,16,.16); }
-.bes-media { position: relative; overflow: hidden; }
-.bes-media img { transition: transform .7s cubic-bezier(.2,.7,.2,1); }
-.bes-lift:hover .bes-media img, .bes-zoom:hover img { transform: scale(1.04); }
-.bes-zoom { position: relative; display: block; width: 100%; padding: 0; border: 0; background: none; overflow: hidden; cursor: zoom-in; }
-.bes-zoom img { transition: transform .7s cubic-bezier(.2,.7,.2,1); }
-.bes-hint { opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease; }
-.bes-zoom:hover .bes-hint, .bes-zoom:focus-visible .bes-hint { opacity: 1; transform: none; }
-.bes-filter { padding: 9px 18px; border-radius: 999px; cursor: pointer; font: inherit; font-weight: 700; font-size: 13.5px; color: var(--green-950, #5E0B10); background: #fff; border: 1px solid rgba(142,18,24,.14); display: inline-flex; align-items: center; gap: 8px; transition: background .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease; }
-.bes-filter:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(94,11,16,.12); }
-.bes-filter[aria-pressed="true"] { color: #fff; background: linear-gradient(100deg, #5E0B10, #A8161B); border-color: transparent; box-shadow: 0 8px 18px rgba(94,11,16,.28); }
-.bes-filter .bes-count { font-size: 11.5px; min-width: 20px; padding: 1px 7px; border-radius: 999px; background: rgba(142,18,24,.1); text-align: center; }
-.bes-filter[aria-pressed="true"] .bes-count { background: rgba(255,255,255,.22); }
-.bes-search { position: relative; display: flex; align-items: center; gap: 10px; padding: 0 16px; background: #fff; border: 1px solid rgba(142,18,24,.18); border-radius: 12px; transition: border-color .2s ease, box-shadow .2s ease; }
-.bes-search:focus-within { border-color: #A8161B; box-shadow: 0 0 0 4px rgba(168,22,27,.12); }
-.bes-search input { border: none; outline: none; background: transparent; font: inherit; font-size: .95rem; padding: 13px 0; width: 100%; color: var(--green-950, #5E0B10); }
-.bes-link { transition: gap .2s ease, color .2s ease; display: inline-flex; align-items: center; gap: 6px; }
-.bes-lift:hover .bes-link { gap: 12px; }
-.bes-skel { background: linear-gradient(90deg, #f6e9c6 0%, #fff6d8 50%, #f6e9c6 100%); background-size: 200% 100%; animation: bes-shimmer 1.4s linear infinite; border-radius: 8px; }
-.bes-lb-btn { display: grid; place-items: center; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.14); color: #fff; cursor: pointer; backdrop-filter: blur(6px); transition: background .2s ease, transform .2s ease; }
-.bes-lb-btn:hover { background: rgba(255,255,255,.28); }
+.bes-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* accordion: height animates open/closed */
+.bes-acc { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease; }
+.bes-acc[data-open="true"] { grid-template-rows: 1fr; }
+.bes-acc > div { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility .3s; }
+.bes-acc[data-open="true"] > div { visibility: visible; }
+
 @media (prefers-reduced-motion: reduce) {
   .bes-reveal { opacity: 1; transform: none; transition: none; }
-  .bes-rise, .bes-ticket, .bes-blob, .bes-skel, .bes-grow { animation: none; }
-  .bes-lift, .bes-lift:hover, .bes-media img, .bes-zoom img, .bes-filter { transition: none; transform: none; }
+  .bes-rise, .bes-ticket, .bes-blob, .bes-skel { animation: none; }
+  .bes-lift, .bes-lift:hover, .bes-media img, .bes-zoom img, .bes-filter, .bes-btn, .bes-btn:hover, .bes-iconbtn, .bes-acc, .bes-acc > div { transition: none; transform: none; }
   .bes-lift:hover .bes-media img, .bes-zoom:hover img { transform: none; }
 }
 `;
 
-function BesStyles() {
-  return <style>{CSS}</style>;
-}
-
-const BTN_CSS = `
-.bes-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 24px; border-radius: 12px; border: 2px solid transparent; font: inherit; font-weight: 800; font-size: .95rem; text-decoration: none; cursor: pointer; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
-.bes-btn:hover { transform: translateY(-2px); }
-.bes-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
-.bes-btn-primary { background: var(--green-800, #A8161B); color: #fff; box-shadow: 0 8px 18px rgba(94,11,16,.28); }
-.bes-btn-outline { background: transparent; color: var(--green-950, #5E0B10); border-color: var(--green-950, #5E0B10); }
-.bes-btn-outline:hover { background: var(--green-950, #5E0B10); color: #fff; }
-.bes-btn-white { background: #fff; color: var(--green-950, #5E0B10); box-shadow: 0 10px 22px rgba(0,0,0,.25); }
-.bes-btn-sm { padding: 9px 16px; font-size: .84rem; border-radius: 10px; }
-.bes-field { width: 100%; box-sizing: border-box; padding: 13px 14px; border: 1px solid rgba(142,18,24,.18); border-radius: 12px; background: #fff; font: inherit; font-size: .95rem; color: var(--green-950, #5E0B10); transition: border-color .2s ease, box-shadow .2s ease; }
-.bes-field:focus { outline: none; border-color: #A8161B; box-shadow: 0 0 0 4px rgba(168,22,27,.12); }
-@media (prefers-reduced-motion: reduce) { .bes-btn { transition: none; } .bes-btn:hover { transform: none; } }
-`;
+function BesStyles() { return <style>{CSS}</style>; }
 
 function useWide() {
   const q = '(min-width: 761px)';
@@ -97,8 +62,8 @@ function useWide() {
   return m;
 }
 
-/* Fades + lifts its children in when scrolled into view */
-function Reveal({ children, delay = 0, style, ...rest }) {
+/* Fades + lifts its child in once, when scrolled into view. Use `as="li"` inside lists. */
+function Reveal({ as: Tag = 'div', children, delay = 0, style, ...rest }) {
   const ref = useRef(null);
   const [seen, setSeen] = useState(() => typeof IntersectionObserver === 'undefined');
   useEffect(() => {
@@ -112,13 +77,12 @@ function Reveal({ children, delay = 0, style, ...rest }) {
     return () => io.disconnect();
   }, [seen]);
   return (
-    <div ref={ref} className={`bes-reveal${seen ? ' in' : ''}`} style={{ transitionDelay: seen ? `${delay}ms` : '0ms', ...style }} {...rest}>
+    <Tag ref={ref} className={`bes-reveal${seen ? ' in' : ''}`} style={{ transitionDelay: seen ? `${delay}ms` : '0ms', ...style }} {...rest}>
       {children}
-    </div>
+    </Tag>
   );
 }
 
-/* Counts up to a number; strings pass straight through */
 function CountUp({ value }) {
   const isNum = typeof value === 'number';
   const [n, setN] = useState(0);
@@ -139,7 +103,20 @@ function CountUp({ value }) {
   return <>{isNum ? n.toLocaleString() : value}</>;
 }
 
-/* ─── Hero: legal pad, drifting light, margin line, wave edge ─── */
+function Crumbs({ items }) {
+  return (
+    <nav aria-label="Breadcrumb" style={{ marginBottom: 14, fontSize: '0.85rem', color: C.muted }}>
+      {items.map((c, i) => (
+        <span key={c.label}>
+          {i > 0 && <span aria-hidden="true"> › </span>}
+          {c.to ? <Link to={c.to} style={{ color: C.red, fontWeight: 700, textDecoration: 'none' }}>{c.label}</Link> : <span aria-current="page">{c.label}</span>}
+        </span>
+      ))}
+    </nav>
+  );
+}
+
+/* Hero: legal pad, drifting light, margin line, wave edge */
 function Hero({ wide, above, eyebrow, title, subtitle, aside, extra }) {
   return (
     <header style={{ position: 'relative', overflow: 'hidden', ...paperBg }}>
@@ -163,7 +140,7 @@ function Hero({ wide, above, eyebrow, title, subtitle, aside, extra }) {
   );
 }
 
-/* ─── "Ticket" stat card: one headline fact + supporting rows ─── */
+/* "Ticket" stat card: one headline fact + supporting rows */
 function Ticket({ wide, Icon, label, value, note, rows = [], ariaLabel }) {
   return (
     <aside aria-label={ariaLabel || label} className="bes-ticket" style={{ position: 'relative', ...card, '--rot': wide ? '1.2deg' : '0deg', borderRadius: 16, boxShadow: '0 28px 54px rgba(94, 11, 16, 0.22)' }}>
@@ -197,17 +174,18 @@ function Ticket({ wide, Icon, label, value, note, rows = [], ariaLabel }) {
   );
 }
 
-/* ─── Section heading in the red double-rule "notebook margin" ─── */
-function SectionHead({ Icon, num, eyebrow, title, note, right }) {
+/* Section heading in the red double-rule "notebook margin" */
+function SectionHead({ Icon, num, eyebrow, title, note, right, level = 2 }) {
+  const H = `h${level}`;
   return (
     <div style={{ display: 'flex', alignItems: 'stretch', marginBottom: 26, gap: 16, flexWrap: 'wrap' }}>
       <div style={{ display: 'flex', alignItems: 'stretch', flex: '1 1 260px', minWidth: 0 }}>
-        <span aria-hidden="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', alignSelf: 'stretch', flex: 'none', minWidth: num ? 44 : 0, paddingRight: 16, marginRight: 18, borderRight: `5px double ${C.margin}`, color: C.red, fontWeight: 800, fontSize: '1.05rem', fontVariantNumeric: 'tabular-nums' }}>
-          {num || (Icon && <Icon size={22} />)}
+        <span aria-hidden="true" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', alignSelf: 'stretch', flex: 'none', minWidth: num !== undefined ? 44 : 0, paddingRight: Icon || num !== undefined ? 16 : 0, marginRight: 18, borderRight: `5px double ${C.margin}`, color: C.red, fontWeight: 800, fontSize: '1.05rem', fontVariantNumeric: 'tabular-nums' }}>
+          {num !== undefined ? num : (Icon && <Icon size={22} />)}
         </span>
         <div style={{ minWidth: 0 }}>
           {eyebrow && <p style={{ margin: '0 0 4px', color: C.red, fontWeight: 700, fontSize: '0.9rem' }}>{eyebrow}</p>}
-          <h2 style={{ margin: 0, color: C.ink, fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 1.1, fontSize: 'clamp(1.6rem, 3vw, 2.2rem)' }}>{title}</h2>
+          <H style={{ margin: 0, color: C.ink, fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 1.1, fontSize: 'clamp(1.6rem, 3vw, 2.2rem)' }}>{title}</H>
           {note && <p style={{ margin: '6px 0 0', fontSize: '0.95rem', color: C.muted }}>{note}</p>}
         </div>
       </div>
@@ -216,12 +194,13 @@ function SectionHead({ Icon, num, eyebrow, title, note, right }) {
   );
 }
 
-function EmptyState({ Icon, title, children }) {
+function EmptyState({ Icon, title, children, action }) {
   return (
     <div className="bes-reveal in" style={{ ...card, boxShadow: 'none', border: `2px dashed ${C.line}`, padding: '44px 24px', textAlign: 'center' }}>
       <span aria-hidden="true" style={{ display: 'inline-grid', placeItems: 'center', width: 56, height: 56, borderRadius: 16, background: `linear-gradient(135deg, ${C.tint}, #FFE3A3)`, color: C.red, marginBottom: 14 }}><Icon size={24} /></span>
       {title && <p style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '1.1rem' }}>{title}</p>}
       {children && <p style={{ margin: '0 auto', maxWidth: '44ch', color: C.muted, fontSize: '0.98rem', lineHeight: 1.6 }}>{children}</p>}
+      {action && <div style={{ marginTop: 18 }}>{action}</div>}
     </div>
   );
 }
@@ -246,16 +225,25 @@ function FilterChip({ on, onClick, children, count }) {
 function SearchBox({ value, onChange, placeholder, label, style }) {
   return (
     <label className="bes-search" style={{ marginBottom: 18, ...style }}>
-      <span style={{ position: 'absolute', left: -9999 }}>{label}</span>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+      <span className="bes-sr">{label}</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round" aria-hidden="true" style={{ flex: 'none' }}><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
       <input type="search" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
+      {value && <button type="button" className="bes-clear" aria-label="Clear search" onClick={() => onChange('')}>&times;</button>}
     </label>
   );
 }
 
+/* Highlights the first match of `q` (already lower-cased) in `text` */
+function Mark({ text, q }) {
+  if (!q || !text) return text || null;
+  const i = text.toLowerCase().indexOf(q);
+  if (i < 0) return text;
+  return <>{text.slice(0, i)}<mark className="bes-mark">{text.slice(i, i + q.length)}</mark>{text.slice(i + q.length)}</>;
+}
+
 function SkeletonGrid({ min = 280, count = 3, height = 300 }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${min}px, 1fr))`, gap: 22 }}>
+    <div aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(min(${min}px, 100%), 1fr))`, gap: 22 }}>
       {Array.from({ length: count }).map((_, i) => <div key={i} className="bes-skel" style={{ height, borderRadius: 14 }} />)}
     </div>
   );
@@ -265,11 +253,12 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const CATEGORY_LABELS = { event: 'Event', academic: 'Academic', holiday: 'Holiday', special: 'Special', general: 'General' };
+const ACCENT = { event: C.red, academic: C.deep, holiday: '#E8B923', special: C.ink, general: C.margin };
 const ymKey = (y, m) => `${y}-${m}`;
+const DAY_MS = 86400000;
+const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
 
 const CAL_CSS = `
-.bes-iconbtn { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; border: 1px solid rgba(142,18,24,.2); background: #fff; color: var(--green-950, #5E0B10); font: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; transition: background .2s ease, transform .2s ease; }
-.bes-iconbtn:hover { background: #FFF4C7; transform: translateY(-1px); }
 .bes-cal-weekdays, .bes-cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .bes-cal-weekdays { background: #FFF4C7; border-bottom: 1px solid rgba(142,18,24,.14); }
 .bes-cal-weekday { text-align: center; padding: 11px 0; font-size: .8rem; font-weight: 800; color: #6B4A44; }
@@ -277,29 +266,20 @@ const CAL_CSS = `
 .bes-cal-cell:nth-child(7n) { border-right: 0; }
 .bes-cal-empty { background: #FFFBEA; }
 .bes-cal-num { font-size: .95rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-.bes-cal-has { cursor: pointer; background: #FBE3E3; transition: background .15s ease, transform .15s ease; }
+.bes-cal-has { cursor: pointer; background: #FBE3E3; transition: background .15s ease; }
 .bes-cal-has .bes-cal-num { font-weight: 800; color: var(--green-900, #8E1218); }
 .bes-cal-has:hover { background: #F7CFCF; }
 .bes-cal-today { box-shadow: inset 0 0 0 2px var(--green-800, #A8161B); }
 .bes-cal-selected, .bes-cal-selected:hover { background: var(--green-800, #A8161B); }
 .bes-cal-selected .bes-cal-num { color: #fff; }
 .bes-cal-dots { display: flex; gap: 3px; }
-.bes-cal-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-800, #A8161B); }
-.bes-cal-selected .bes-cal-dot { background: #fff; }
+.bes-cal-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dot, #A8161B); box-shadow: 0 0 0 1.5px #fff; }
+.bes-cal-selected .bes-cal-dot { background: #fff; box-shadow: none; }
 .bes-cal-grid { animation: bes-fade .35s ease-out; }
 @media (max-width: 480px) { .bes-cal-cell { height: 54px; gap: 3px; } .bes-cal-num { font-size: .82rem; } }
-@media (prefers-reduced-motion: reduce) { .bes-cal-has, .bes-iconbtn, .bes-cal-grid { transition: none; animation: none; } }
+@media (prefers-reduced-motion: reduce) { .bes-cal-has, .bes-cal-grid { transition: none; animation: none; } }
 `;
 
-const fmtDate = (d, opts = { year: 'numeric', month: 'long', day: 'numeric' }) =>
-  d ? new Date(d).toLocaleDateString('en-PH', opts) : '';
-const DAY_MS = 86400000;
-const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
-
-// Left accent per category, kept inside the school palette
-const ACCENT = { event: C.red, academic: C.deep, holiday: '#E8B923', special: C.ink, general: C.margin };
-
-// Where an event sits relative to today
 function eventStatus(ev) {
   const t = startOfDay(new Date()).getTime();
   const s = startOfDay(ev.start_date).getTime();
@@ -312,11 +292,11 @@ function eventStatus(ev) {
 
 const STATUS_STYLE = {
   now: { background: C.red, color: '#fff' },
-  soon: { background: '#FFF1BF', color: '#8A5A00' },
+  soon: { background: '#FFF1BF', color: C.goldText },
   past: { background: C.cream, color: C.muted, border: `1px solid ${C.line}` },
 };
 
-function AgendaRow({ ev }) {
+function AgendaRow({ ev, q }) {
   const start = new Date(ev.start_date);
   const end = ev.end_date ? new Date(ev.end_date) : start;
   const hasRange = startOfDay(end).getTime() > startOfDay(start).getTime();
@@ -328,13 +308,13 @@ function AgendaRow({ ev }) {
   const chipDay = hasRange ? `${start.getDate()}–${end.getDate()}` : `${start.getDate()}`;
 
   return (
-    <li className="bes-lift" style={{ ...card, display: 'flex', gap: 16, padding: '16px 18px', alignItems: 'center', flexWrap: 'wrap', borderLeft: `4px solid ${ACCENT[ev.category] || C.margin}`, opacity: status.key === 'past' ? 0.75 : 1 }}>
+    <div className="bes-lift" style={{ ...card, display: 'flex', gap: 16, padding: '16px 18px', alignItems: 'center', flexWrap: 'wrap', borderLeft: `4px solid ${ACCENT[ev.category] || C.margin}`, opacity: status.key === 'past' ? 0.78 : 1 }}>
       <div aria-hidden="true" style={{ flex: 'none', minWidth: 64, display: 'flex', flexDirection: 'column', borderRadius: 12, overflow: 'hidden', border: `1px solid ${C.line}`, background: C.paper }}>
         <span style={{ display: 'block', padding: '4px 8px', background: GRAD, color: '#fff', fontSize: '0.74rem', fontWeight: 800, textAlign: 'center' }}>{chipMonth}</span>
         <span style={{ display: 'block', padding: '7px 8px 8px', color: C.ink, fontSize: hasRange ? '1.3rem' : '1.6rem', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.03em', textAlign: 'center', whiteSpace: 'nowrap' }}>{chipDay}</span>
       </div>
       <div style={{ flex: '1 1 220px', minWidth: 0 }}>
-        <h3 style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '1.05rem', letterSpacing: '-0.02em', lineHeight: 1.3 }}>{ev.event_name}</h3>
+        <h3 style={{ margin: '0 0 6px', fontWeight: 800, fontSize: '1.05rem', letterSpacing: '-0.02em', lineHeight: 1.3 }}><Mark text={ev.event_name} q={q} /></h3>
         <div style={{ display: 'flex', gap: '6px 12px', flexWrap: 'wrap', alignItems: 'center' }}>
           {ev.category && <Chip>{CATEGORY_LABELS[ev.category] || ev.category}</Chip>}
           <span style={{ fontSize: '0.86rem', color: C.muted }}>
@@ -344,7 +324,7 @@ function AgendaRow({ ev }) {
         </div>
       </div>
       <span style={{ marginLeft: 'auto', padding: '5px 12px', borderRadius: 999, fontSize: '0.78rem', fontWeight: 800, whiteSpace: 'nowrap', ...STATUS_STYLE[status.key] }}>{status.label}</span>
-    </li>
+    </div>
   );
 }
 
@@ -357,27 +337,22 @@ export default function SchoolCalendarPage() {
   const [viewDate, setViewDate] = useState(() => { const t = new Date(); return { year: t.getFullYear(), month: t.getMonth() }; });
   const [selectedDay, setSelectedDay] = useState(null);
   const initializedRef = useRef(false);
+  const listRef = useRef(null);
   const today = new Date();
 
   useEffect(() => {
-    api.get('/calendar').then((r) => setEvents(r.data)).finally(() => setLoading(false));
+    api.get('/calendar').then((r) => setEvents(r.data)).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  // On first load, jump to the nearest month that actually has events
+  // On first load, jump to the nearest month that has events
   useEffect(() => {
     if (initializedRef.current || events.length === 0) return;
     initializedRef.current = true;
-    const monthsSet = new Set();
-    events.forEach((e) => {
-      if (!e.start_date) return;
-      const d = new Date(e.start_date);
-      monthsSet.add(ymKey(d.getFullYear(), d.getMonth()));
-    });
-    const monthsArr = Array.from(monthsSet)
-      .map((k) => { const [y, m] = k.split('-').map(Number); return { y, m }; })
-      .sort((a, b) => a.y - b.y || a.m - b.m);
-    const upcoming = monthsArr.find((x) => x.y > today.getFullYear() || (x.y === today.getFullYear() && x.m >= today.getMonth()));
-    const chosen = upcoming || monthsArr[0];
+    const set = new Set();
+    events.forEach((e) => { if (e.start_date) { const d = new Date(e.start_date); set.add(ymKey(d.getFullYear(), d.getMonth())); } });
+    const arr = Array.from(set).map((k) => { const [y, m] = k.split('-').map(Number); return { y, m }; }).sort((a, b) => a.y - b.y || a.m - b.m);
+    const upcoming = arr.find((x) => x.y > today.getFullYear() || (x.y === today.getFullYear() && x.m >= today.getMonth()));
+    const chosen = upcoming || arr[0];
     if (chosen) setViewDate({ year: chosen.y, month: chosen.m });
   }, [events]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -390,40 +365,31 @@ export default function SchoolCalendarPage() {
   const byCategory = useMemo(() => events.filter((e) => activeCategory === 'all' || e.category === activeCategory), [events, activeCategory]);
 
   const next = useMemo(() => {
-    const t = new Date();
-    t.setHours(0, 0, 0, 0);
+    const t = new Date(); t.setHours(0, 0, 0, 0);
     return events.filter((e) => e.start_date && new Date(e.start_date) >= t).sort((a, b) => new Date(a.start_date) - new Date(b.start_date))[0];
   }, [events]);
 
-  const searchMode = query.trim().length > 0;
+  const q = query.trim().toLowerCase();
+  const searchMode = q.length > 0;
 
-  // Search mode: agenda grouped by month and year
   const searchResults = useMemo(() => {
     if (!searchMode) return {};
-    const q = query.trim().toLowerCase();
     const grouped = {};
     byCategory.filter((e) => e.event_name?.toLowerCase().includes(q)).forEach((e) => {
       if (!e.start_date) return;
       const d = new Date(e.start_date);
       const key = ymKey(d.getFullYear(), d.getMonth());
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push(e);
+      (grouped[key] = grouped[key] || []).push(e);
     });
     return grouped;
-  }, [searchMode, query, byCategory]);
+  }, [searchMode, q, byCategory]);
 
-  // Month-jump options come from all events (ignores the category filter)
   const monthOptions = useMemo(() => {
     const set = new Set();
-    events.forEach((e) => {
-      if (!e.start_date) return;
-      const d = new Date(e.start_date);
-      set.add(ymKey(d.getFullYear(), d.getMonth()));
-    });
+    events.forEach((e) => { if (e.start_date) { const d = new Date(e.start_date); set.add(ymKey(d.getFullYear(), d.getMonth())); } });
     return Array.from(set).map((k) => { const [y, m] = k.split('-').map(Number); return { y, m }; }).sort((a, b) => a.y - b.y || a.m - b.m);
   }, [events]);
 
-  // Events overlapping the viewed month
   const monthEvents = useMemo(() => {
     const monthStart = new Date(viewDate.year, viewDate.month, 1);
     const monthEnd = new Date(viewDate.year, viewDate.month + 1, 0);
@@ -435,7 +401,6 @@ export default function SchoolCalendarPage() {
     });
   }, [byCategory, viewDate]);
 
-  // Day of month -> events covering that day
   const eventsByDay = useMemo(() => {
     const map = {};
     const monthStart = new Date(viewDate.year, viewDate.month, 1);
@@ -447,8 +412,7 @@ export default function SchoolCalendarPage() {
       const last = en > monthEnd ? monthEnd : en;
       while (cur <= last) {
         const day = cur.getDate();
-        if (!map[day]) map[day] = [];
-        map[day].push(e);
+        (map[day] = map[day] || []).push(e);
         cur.setDate(cur.getDate() + 1);
       }
     });
@@ -474,10 +438,19 @@ export default function SchoolCalendarPage() {
     if (month > 11) { month = 0; year += 1; }
     goToMonth(year, month);
   };
+  const pickDay = (day, isSelected) => {
+    setSelectedDay(isSelected ? null : day);
+    // On phones the list sits below the grid, so bring it into view
+    if (!isSelected && !wide && listRef.current) {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      listRef.current.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    }
+  };
 
   const agendaList = selectedDay ? (eventsByDay[selectedDay] || []) : monthEvents;
   const agendaSorted = [...agendaList].sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
   const plural = (n) => `${n} ${n === 1 ? 'event' : 'events'}`;
+  const legendCats = categories.filter((c) => c !== 'all');
 
   const ticket = (
     <Ticket wide={wide} Icon={IconCalendar} ariaLabel="Next event" label="Next event"
@@ -492,9 +465,9 @@ export default function SchoolCalendarPage() {
   return (
     <div className="bes-page" style={pageShell(wide)}>
       <BesStyles />
-      <style>{BTN_CSS}</style>
       <style>{CAL_CSS}</style>
-      <Hero wide={wide} eyebrow="School Calendar" title="Important dates for the school year."
+      <Hero wide={wide} above={<Crumbs items={[{ label: 'Home', to: '/' }, { label: 'School calendar' }]} />}
+        eyebrow="School Calendar" title="Important dates for the school year."
         subtitle="Browse the month, tap a highlighted day to see what is happening, or search by event name." aside={ticket} />
 
       <main className="container" style={{ ...mainBox(wide), maxWidth: 860, paddingTop: wide ? 40 : 28, display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -509,7 +482,7 @@ export default function SchoolCalendarPage() {
           </div>
         )}
 
-        {/* Month navigator: hidden while searching, since search shows an agenda across all months */}
+        {/* Month navigator: hidden while searching (search shows an agenda across all months) */}
         {!loading && events.length > 0 && !searchMode && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -517,13 +490,18 @@ export default function SchoolCalendarPage() {
               <h2 aria-live="polite" style={{ margin: 0, minWidth: wide ? 230 : 170, textAlign: 'center', color: C.ink, fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 1.1, fontSize: 'clamp(1.35rem, 3vw, 1.8rem)' }}>{MONTHS[viewDate.month]} {viewDate.year}</h2>
               <button type="button" className="bes-iconbtn" onClick={() => shiftMonth(1)} aria-label="Next month">›</button>
             </div>
-            {monthOptions.length > 0 && (
-              <select className="bes-field" style={{ width: 'auto', fontWeight: 700, cursor: 'pointer' }} aria-label="Jump to month" value={ymKey(viewDate.year, viewDate.month)}
-                onChange={(e) => { const [y, m] = e.target.value.split('-').map(Number); goToMonth(y, m); }}>
-                {!monthOptions.some(({ y, m }) => y === viewDate.year && m === viewDate.month) && <option value={ymKey(viewDate.year, viewDate.month)}>{MONTHS[viewDate.month]} {viewDate.year}</option>}
-                {monthOptions.map(({ y, m }) => <option key={ymKey(y, m)} value={ymKey(y, m)}>{MONTHS[m]} {y}</option>)}
-              </select>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              {!isCurrentRealMonth && (
+                <button type="button" className="bes-btn bes-btn-outline bes-btn-sm" onClick={() => goToMonth(today.getFullYear(), today.getMonth())}>Today</button>
+              )}
+              {monthOptions.length > 0 && (
+                <select className="bes-field" style={{ width: 'auto', fontWeight: 700, cursor: 'pointer' }} aria-label="Jump to month" value={ymKey(viewDate.year, viewDate.month)}
+                  onChange={(e) => { const [y, m] = e.target.value.split('-').map(Number); goToMonth(y, m); }}>
+                  {!monthOptions.some(({ y, m }) => y === viewDate.year && m === viewDate.month) && <option value={ymKey(viewDate.year, viewDate.month)}>{MONTHS[viewDate.month]} {viewDate.year}</option>}
+                  {monthOptions.map(({ y, m }) => <option key={ymKey(y, m)} value={ymKey(y, m)}>{MONTHS[m]} {y}</option>)}
+                </select>
+              )}
+            </div>
           </div>
         )}
 
@@ -533,7 +511,10 @@ export default function SchoolCalendarPage() {
           <EmptyState Icon={IconCalendar} title="No events yet.">No calendar events have been posted yet.</EmptyState>
         ) : searchMode ? (
           Object.keys(searchResults).length === 0 ? (
-            <EmptyState Icon={IconCalendar} title="No matches.">No events match your search or filter. Clear the search to return to the calendar.</EmptyState>
+            <EmptyState Icon={IconCalendar} title="No matches."
+              action={<button type="button" className="bes-btn bes-btn-outline bes-btn-sm" onClick={() => { setQuery(''); setActiveCategory('all'); }}>Back to calendar</button>}>
+              No events match your search or filter.
+            </EmptyState>
           ) : (
             Object.entries(searchResults)
               .sort(([a], [b]) => { const [ay, am] = a.split('-').map(Number); const [by, bm] = b.split('-').map(Number); return ay - by || am - bm; })
@@ -543,10 +524,12 @@ export default function SchoolCalendarPage() {
                   <section key={key} aria-label={`${MONTHS[m]} ${y}`}>
                     <Reveal>
                       <SectionHead num={String(m + 1).padStart(2, '0')} eyebrow={plural(evs.length)} title={`${MONTHS[m]} ${y}`} />
-                      <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        {[...evs].sort((a, b) => new Date(a.start_date) - new Date(b.start_date)).map((ev) => <AgendaRow key={ev.id} ev={ev} />)}
-                      </ul>
                     </Reveal>
+                    <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {[...evs].sort((a, b) => new Date(a.start_date) - new Date(b.start_date)).map((ev, i) => (
+                        <Reveal as="li" key={ev.id} delay={Math.min(i, 5) * 50}><AgendaRow ev={ev} q={q} /></Reveal>
+                      ))}
+                    </ul>
                   </section>
                 );
               })
@@ -555,7 +538,7 @@ export default function SchoolCalendarPage() {
           <>
             <Reveal>
               <div style={{ ...card, overflow: 'hidden' }}>
-                <div className="bes-cal-weekdays">{WEEKDAYS.map((w) => <div key={w} className="bes-cal-weekday">{w}</div>)}</div>
+                <div className="bes-cal-weekdays" aria-hidden="true">{WEEKDAYS.map((w) => <div key={w} className="bes-cal-weekday">{w}</div>)}</div>
                 <div className="bes-cal-grid" key={ymKey(viewDate.year, viewDate.month)}>
                   {gridCells.map((day, i) => {
                     if (day === null) return <div key={i} className="bes-cal-cell bes-cal-empty" aria-hidden="true" />;
@@ -565,19 +548,29 @@ export default function SchoolCalendarPage() {
                     const isSelected = selectedDay === day;
                     const cls = ['bes-cal-cell', hasEvents && 'bes-cal-has', isSelected && 'bes-cal-selected', isToday && 'bes-cal-today'].filter(Boolean).join(' ');
                     if (!hasEvents) return <div key={i} className={cls} aria-current={isToday ? 'date' : undefined}><span className="bes-cal-num">{day}</span></div>;
+                    const cats = [...new Set(dayEvents.map((e) => e.category))].slice(0, 3);
                     return (
                       <button key={i} type="button" className={cls} aria-pressed={isSelected} aria-current={isToday ? 'date' : undefined}
-                        aria-label={`${MONTHS[viewDate.month]} ${day}, ${plural(dayEvents.length)}`} onClick={() => setSelectedDay(isSelected ? null : day)}>
+                        aria-label={`${MONTHS[viewDate.month]} ${day}, ${plural(dayEvents.length)}${isToday ? ', today' : ''}`} onClick={() => pickDay(day, isSelected)}>
                         <span className="bes-cal-num">{day}</span>
-                        <span className="bes-cal-dots" aria-hidden="true">{dayEvents.slice(0, 3).map((_, di) => <span key={di} className="bes-cal-dot" />)}</span>
+                        <span className="bes-cal-dots" aria-hidden="true">{cats.map((c, di) => <span key={di} className="bes-cal-dot" style={{ '--dot': ACCENT[c] || C.margin }} />)}</span>
                       </button>
                     );
                   })}
                 </div>
               </div>
+              {legendCats.length > 1 && (
+                <ul aria-label="Category colors" style={{ margin: '12px 2px 0', padding: 0, listStyle: 'none', display: 'flex', flexWrap: 'wrap', gap: '6px 16px', fontSize: '0.82rem', color: C.muted }}>
+                  {legendCats.map((c) => (
+                    <li key={c} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                      <span aria-hidden="true" style={{ width: 9, height: 9, borderRadius: '50%', background: ACCENT[c] || C.margin }} />{CATEGORY_LABELS[c] || c}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </Reveal>
 
-            <section aria-label="Event list">
+            <section aria-label="Event list" ref={listRef} style={{ scrollMarginTop: 72 }}>
               <SectionHead num={agendaSorted.length}
                 eyebrow={selectedDay ? (agendaSorted.length === 1 ? 'event on this day' : 'events on this day') : (agendaSorted.length === 1 ? 'event this month' : 'events this month')}
                 title={selectedDay ? `${MONTHS[viewDate.month]} ${selectedDay}, ${viewDate.year}` : `${MONTHS[viewDate.month]} ${viewDate.year}`}
@@ -586,7 +579,7 @@ export default function SchoolCalendarPage() {
                 <EmptyState Icon={IconCalendar} title="Nothing scheduled.">No events {selectedDay ? 'on this day' : 'this month'}.</EmptyState>
               ) : (
                 <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {agendaSorted.map((ev, i) => <Reveal key={ev.id} delay={Math.min(i, 5) * 50}><AgendaRow ev={ev} /></Reveal>)}
+                  {agendaSorted.map((ev, i) => <Reveal as="li" key={ev.id} delay={Math.min(i, 5) * 50}><AgendaRow ev={ev} /></Reveal>)}
                 </ul>
               )}
             </section>
