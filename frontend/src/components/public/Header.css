@@ -1,10 +1,17 @@
 /* ================================================================
-   BES Site Header — v4
+   BES Site Header — v4.1
    Theme: Crimson red + Golden yellow (blended via amber/orange)
    Class names and variable names unchanged for markup/JS
    compatibility. Legacy --green-* tokens now hold the crimson
    scale (950 darkest → 700 brightest) with --green-500 as the
    orange bridge tone. Values match Index.css / HomePage.css.
+
+   v4.1 mobile fixes:
+   - .mobile-backdrop now sits inside <header> and BELOW .nav-bar
+     (z-index 5 vs 10), so the drawer is never blurred or dimmed.
+   - .nav-bar.is-sticky drops backdrop-filter on mobile. A
+     backdrop-filter on an ancestor makes position: fixed children
+     (the drawer) position relative to the nav bar, not the screen.
    ================================================================ */
 
 :root {
@@ -495,6 +502,14 @@
 
   .menu-button { display: inline-flex; }
 
+  /* FIX: backdrop-filter on an ancestor traps position: fixed children
+     (the drawer). Use a solid colour on mobile instead. */
+  .nav-bar.is-sticky {
+    background: #7F1015;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
   .nav-mobile-title {
     display: flex;
     align-items: center;
@@ -589,16 +604,17 @@
   .dropdown-item:hover { padding-left: 16px; color: #fff; border-left: 0; background: rgba(242, 183, 5, .16); }
   .dropdown-arrow { opacity: .5; transform: none; }
 
+  /* FIX: the backdrop must sit BELOW .nav-bar (z-index: 10), which holds
+     the drawer, but ABOVE the page content. No blur, so nothing behind the
+     drawer can bleed through onto it. */
   .mobile-backdrop {
     display: block;
     position: fixed;
     inset: 0;
-    z-index: 1001;
+    z-index: 5;
     width: 100%;
     border: 0;
-    background: rgba(40, 6, 8, .55);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    background: rgba(40, 6, 8, .6);
     cursor: pointer;
   }
 }
