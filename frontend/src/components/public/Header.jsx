@@ -411,6 +411,11 @@ export default function Header() {
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
+  /* If the viewport grows past the mobile breakpoint, make sure the drawer state is reset. */
+  useEffect(() => {
+    if (viewportWidth > 940) setMenuOpen(false);
+  }, [viewportWidth]);
+
   const closeMenu = useCallback(() => {
     setMenuOpen(false);
     setOpenSection(null);
@@ -433,108 +438,116 @@ export default function Header() {
   const S = buildStyles(viewportWidth, showPhotoBlock);
 
   return (
-    <>
-      <header className={`site-header${scrolled ? ' has-scrolled' : ''}`}>
-        <div className="utility-bar">
-          <div className="header-container utility-inner">
-            <span className="utility-kicker"><span className="status-dot" /> {greeting}, welcome to our school community</span>
-            <div className="utility-meta">
-              <span>Public Elementary School</span>
-              <span className="utility-divider" />
-              <span>School Year {schoolYear}</span>
-              <span className="utility-divider" />
-              <span className="recognition"><span className="recognition-mark" /> DepEd Recognized</span>
-            </div>
+    <header className={`site-header${scrolled ? ' has-scrolled' : ''}`}>
+      <div className="utility-bar">
+        <div className="header-container utility-inner">
+          <span className="utility-kicker"><span className="status-dot" /> {greeting}, welcome to our school community</span>
+          <div className="utility-meta">
+            <span>Public Elementary School</span>
+            <span className="utility-divider" />
+            <span>School Year {schoolYear}</span>
+            <span className="utility-divider" />
+            <span className="recognition"><span className="recognition-mark" /> DepEd Recognized</span>
           </div>
         </div>
+      </div>
 
-        <section style={S.paper} aria-label="School identity">
-          <div style={S.inner}>
-            <span style={S.marginLine} aria-hidden="true" />
+      <section style={S.paper} aria-label="School identity">
+        <div style={S.inner}>
+          <span style={S.marginLine} aria-hidden="true" />
 
-            <div style={{ minWidth: 0 }}>
-              <div style={S.nameRow}>
-                <div style={S.stamp}>
-                  {showLogo ? (
-                    <img src={getImageUrl(info.logo_url)} alt="School Logo" style={S.stampLogo} onError={() => setLogoFailed(true)} />
-                  ) : (
-                    <span style={S.stampInitials} aria-hidden="true">{getInitials(schoolName)}</span>
-                  )}
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <h1 style={S.h1}>{schoolName}</h1>
-                  <div style={S.mottoRow}>
-                    <span style={S.marker}>{motto}</span>
-                    <span style={S.tagline}>A place to learn, grow, and belong.</span>
-                  </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={S.nameRow}>
+              <div style={S.stamp}>
+                {showLogo ? (
+                  <img src={getImageUrl(info.logo_url)} alt="School Logo" style={S.stampLogo} onError={() => setLogoFailed(true)} />
+                ) : (
+                  <span style={S.stampInitials} aria-hidden="true">{getInitials(schoolName)}</span>
+                )}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <h1 style={S.h1}>{schoolName}</h1>
+                <div style={S.mottoRow}>
+                  <span style={S.marker}>{motto}</span>
+                  <span style={S.tagline}>A place to learn, grow, and belong.</span>
                 </div>
               </div>
-
-              {(showPill || !S.desk) && (
-                <div style={S.noteRow}>
-                  {showPill && <span style={S.pill}><SparkleIcon style={{ width: 14, height: 14, flex: 'none' }} /> {banner.title}</span>}
-                  {!S.desk && <span style={S.recog}><span style={S.diamond} /> DepEd Recognized</span>}
-                </div>
-              )}
             </div>
 
-            {S.desk && (
-              <div style={S.side}>
-                {showPhotoBlock ? (
-                  <div
-                    style={S.polaroid(photoLifted)}
-                    onMouseEnter={() => setPhotoLifted(true)}
-                    onMouseLeave={() => setPhotoLifted(false)}
-                  >
-                    <span style={S.tape} aria-hidden="true" />
-                    <figure style={S.figure}>
-                      <div style={S.photoBox}>
-                        {bannerLoading ? (
-                          <div style={S.photoSkeleton} />
-                        ) : (
-                          <img src={getImageUrl(banner.image_url)} alt="" style={S.photo} onError={() => setBannerImageFailed(true)} />
-                        )}
-                      </div>
-                      <figcaption style={S.caption}>{banner?.title || 'Our school community'}</figcaption>
-                    </figure>
-                    <TearOffCalendar now={now} schoolYear={schoolYear} styles={S} onPhoto />
-                  </div>
-                ) : (
-                  <TearOffCalendar now={now} schoolYear={schoolYear} styles={S} onPhoto={false} />
-                )}
+            {(showPill || !S.desk) && (
+              <div style={S.noteRow}>
+                {showPill && <span style={S.pill}><SparkleIcon style={{ width: 14, height: 14, flex: 'none' }} /> {banner.title}</span>}
+                {!S.desk && <span style={S.recog}><span style={S.diamond} /> DepEd Recognized</span>}
               </div>
             )}
           </div>
-        </section>
 
-        <nav className={`nav-bar${scrolled ? ' is-sticky' : ''}`} ref={navRef} aria-label="Main navigation">
-          <div className="header-container nav-inner">
-            <div className="nav-mobile-title"><span className="nav-mobile-line" /> Explore the school</div>
-            <div className={`nav-main${menuOpen ? ' is-mobile-open' : ''}`}>
-              <div className="nav-links">
-                <div className="nav-drawer-brand">
-                  {showLogo && <img src={getImageUrl(info.logo_url)} alt="" className="nav-drawer-logo" />}
-                  <span>{schoolName}</span>
+          {S.desk && (
+            <div style={S.side}>
+              {showPhotoBlock ? (
+                <div
+                  style={S.polaroid(photoLifted)}
+                  onMouseEnter={() => setPhotoLifted(true)}
+                  onMouseLeave={() => setPhotoLifted(false)}
+                >
+                  <span style={S.tape} aria-hidden="true" />
+                  <figure style={S.figure}>
+                    <div style={S.photoBox}>
+                      {bannerLoading ? (
+                        <div style={S.photoSkeleton} />
+                      ) : (
+                        <img src={getImageUrl(banner.image_url)} alt="" style={S.photo} onError={() => setBannerImageFailed(true)} />
+                      )}
+                    </div>
+                    <figcaption style={S.caption}>{banner?.title || 'Our school community'}</figcaption>
+                  </figure>
+                  <TearOffCalendar now={now} schoolYear={schoolYear} styles={S} onPhoto />
                 </div>
-                {NAV_ITEMS.map((item) => (
-                  <NavItem
-                    key={item.label}
-                    item={item}
-                    isActivePath={isItemActive(item, location.pathname)}
-                    isOpen={openSection === item.label}
-                    onToggle={toggleSection}
-                    onNavigate={closeMenu}
-                  />
-                ))}
-              </div>
+              ) : (
+                <TearOffCalendar now={now} schoolYear={schoolYear} styles={S} onPhoto={false} />
+              )}
             </div>
-            <button type="button" className={`menu-button${menuOpen ? ' is-active' : ''}`} onClick={() => setMenuOpen((current) => !current)} aria-label="Toggle navigation menu" aria-expanded={menuOpen}>
-              <MenuIcon open={menuOpen} /><span className="menu-button-text">Menu</span>
-            </button>
+          )}
+        </div>
+      </section>
+
+      <nav className={`nav-bar${scrolled ? ' is-sticky' : ''}`} ref={navRef} aria-label="Main navigation">
+        <div className="header-container nav-inner">
+          <div className="nav-mobile-title"><span className="nav-mobile-line" /> Explore the school</div>
+          <div className={`nav-main${menuOpen ? ' is-mobile-open' : ''}`}>
+            <div className="nav-links">
+              <div className="nav-drawer-brand">
+                {showLogo && <img src={getImageUrl(info.logo_url)} alt="" className="nav-drawer-logo" />}
+                <span>{schoolName}</span>
+              </div>
+              {NAV_ITEMS.map((item) => (
+                <NavItem
+                  key={item.label}
+                  item={item}
+                  isActivePath={isItemActive(item, location.pathname)}
+                  isOpen={openSection === item.label}
+                  onToggle={toggleSection}
+                  onNavigate={closeMenu}
+                />
+              ))}
+            </div>
           </div>
-        </nav>
-      </header>
-      {menuOpen && <button type="button" className="mobile-backdrop" aria-label="Close navigation menu" onClick={closeMenu} />}
-    </>
+          <button type="button" className={`menu-button${menuOpen ? ' is-active' : ''}`} onClick={() => setMenuOpen((current) => !current)} aria-label="Toggle navigation menu" aria-expanded={menuOpen}>
+            <MenuIcon open={menuOpen} /><span className="menu-button-text">Menu</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Backdrop lives inside <header> so it shares the header's stacking context
+          and sits BELOW the nav (and its drawer) instead of above it. */}
+      {menuOpen && (
+        <button
+          type="button"
+          className="mobile-backdrop"
+          aria-label="Close navigation menu"
+          onClick={closeMenu}
+        />
+      )}
+    </header>
   );
 }
